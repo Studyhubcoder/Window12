@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Windows 12 Concept</title>
+<style>
+:root{box-sizing:border-box;
+  --glass:rgba(244,247,252,.62);--gs:rgba(250,252,255,.92);--line:rgba(20,30,60,.12);
+  --ink:#141b2d;--ink2:#4a556f;--accent:#3a6df0;--hover:rgba(20,30,60,.07);
+  --w1:#9fc4ff;--w2:#c7b6ff;--w3:#ffd6b0;--w4:#8fe3d0;--bg:#dfe8f8;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --glass:rgba(24,30,52,.6);--gs:rgba(20,25,44,.94);--line:rgba(255,255,255,.12);--ink:#eef2fb;--ink2:#a3aecb;--hover:rgba(255,255,255,.09);
+  --w1:#23408f;--w2:#4a2f8f;--w3:#7a3f3a;--w4:#12636b;--bg:#0b1020}}
+:root[data-theme="dark"]{--glass:rgba(24,30,52,.6);--gs:rgba(20,25,44,.94);--line:rgba(255,255,255,.12);--ink:#eef2fb;--ink2:#a3aecb;--hover:rgba(255,255,255,.09);
+  --w1:#23408f;--w2:#4a2f8f;--w3:#7a3f3a;--w4:#12636b;--bg:#0b1020}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden;font:14px/1.4 "Segoe UI Variable","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+svg{display:block;flex:none}
+#wall{position:fixed;inset:0;transition:filter .4s;background:
+ radial-gradient(60% 55% at 18% 20%,var(--w1),transparent 70%),radial-gradient(50% 50% at 85% 25%,var(--w2),transparent 70%),
+ radial-gradient(55% 60% at 70% 90%,var(--w3),transparent 70%),radial-gradient(45% 50% at 10% 90%,var(--w4),transparent 70%),var(--bg)}
+#desk{position:fixed;inset:0}
+.glass{background:var(--glass);backdrop-filter:blur(28px) saturate(1.5);-webkit-backdrop-filter:blur(28px) saturate(1.5);border:1px solid var(--line);box-shadow:0 18px 50px rgba(10,20,50,.22)}
+#icons{position:absolute;top:10px;left:10px;bottom:84px;display:grid;grid-auto-flow:column;grid-template-rows:repeat(auto-fill,94px);grid-auto-columns:90px;align-content:start}
+.dicon{width:86px;height:90px;padding:6px 3px;border-radius:8px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;line-height:1.15;overflow:hidden;text-shadow:0 1px 5px rgba(255,255,255,.55);word-break:break-word}
+.dicon:hover{background:var(--hover)}.dicon.sel{background:color-mix(in srgb,var(--accent) 25%,transparent);outline:1px solid var(--accent)}
+#widgets{position:absolute;top:16px;right:16px;width:250px;display:grid;gap:10px}
+.card{border-radius:18px;padding:12px 16px}.card h3{margin:0;font-size:12px;font-weight:600;color:var(--ink2)}
+.big{font-size:32px;font-weight:300;letter-spacing:-.02em}.row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:3px 0}
+.win{position:absolute;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:260px;min-height:160px;resize:both}
+.win.focus{box-shadow:0 26px 70px rgba(10,20,50,.38)}
+.win.max{left:0!important;top:0!important;width:100%!important;height:calc(100% - 74px)!important;border-radius:0;resize:none}
+.win.snapL{left:0!important;top:0!important;width:50%!important;height:calc(100% - 74px)!important;resize:none}
+.win.snapR{left:50%!important;top:0!important;width:50%!important;height:calc(100% - 74px)!important;resize:none}
+.tb{display:flex;align-items:center;gap:8px;padding:4px 4px 4px 12px;cursor:grab;user-select:none;touch-action:none}
+.tb b{font-weight:600;flex:1;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb button{width:34px;height:28px;border-radius:8px}.tb button:hover{background:var(--hover)}.tb .x:hover{background:#e5484d;color:#fff}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto;background:var(--gs)}
+.pad{padding:16px}
+.bar{display:flex;gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bar button,.status button,.dlg button{padding:5px 11px;border-radius:8px;background:var(--hover)}
+.bar button:hover{background:var(--line)}.pri{background:var(--accent)!important;color:#fff!important}
+.bar [aria-pressed=true]{background:var(--accent);color:#fff}
+.addr{flex:1;min-width:120px;padding:5px 10px;border-radius:8px;background:var(--hover);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.status{padding:5px 10px;font-size:12px;color:var(--ink2);border-top:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.split{flex:1;display:flex;min-height:0}.side{width:150px;padding:8px;border-right:1px solid var(--line);overflow:auto}
+.side button{display:flex;gap:8px;align-items:center;width:100%;text-align:left;padding:6px 8px;border-radius:8px;font-size:13px}
+.side button:hover,.side button.on{background:var(--hover)}
+.fl{flex:1;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px;align-content:start;overflow:auto}
+.fl>div{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:8px;font-size:12px;text-align:center;word-break:break-word;cursor:default}
+.fl>div:hover{background:var(--hover)}.fl>div.sel{background:color-mix(in srgb,var(--accent) 22%,transparent)}
+.empty{grid-column:1/-1;color:var(--ink2);text-align:center;margin-top:30px}
+textarea{flex:1;width:100%;border:0;background:transparent;color:var(--ink);font:15px/1.6 Consolas,"Cascadia Mono",monospace;padding:12px;resize:none;outline:0}
+.calc{display:flex;flex-direction:column;height:100%;padding:10px;gap:8px;outline:0}
+.disp{text-align:right;padding:6px 10px;min-height:84px}.disp small{display:block;color:var(--ink2);min-height:20px}.disp div{font-size:40px;font-weight:300;overflow:hidden}
+.keys{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.keys button{border-radius:10px;background:var(--hover);font-size:18px}.keys button:hover{background:var(--line)}
+.keys .eq{background:var(--accent);color:#fff}
+.sw2{display:flex;gap:4px}.sw2 button{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);padding:0}
+.cvw{flex:1;padding:10px;overflow:auto;background:var(--hover)}canvas{width:100%;height:auto;background:#fff;border-radius:8px;touch-action:none;cursor:crosshair;display:block}
+.term{background:#0c1020!important;color:#d7e0ff;font:13px/1.45 Consolas,"Cascadia Mono",monospace;padding:10px}
+.term .out div{white-space:pre-wrap;word-break:break-word}.term .ln{display:flex;gap:6px}.term input{flex:1;background:none;border:0;color:inherit;font:inherit;outline:0}
+.bw{padding:24px;text-align:center}.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:18px}
+.tiles a{padding:16px 8px;border-radius:12px;background:var(--hover);color:var(--ink);text-decoration:none}
+.search{width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--gs);color:var(--ink);font:inherit}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}td:first-child{display:flex;gap:8px;align-items:center}
+.tmh{padding:10px;font-weight:600}
+.sec{margin:14px 2px 8px;font-size:12px;color:var(--ink2);font-weight:600}.sw{display:flex;gap:10px;flex-wrap:wrap}.sw button{width:30px;height:30px;border-radius:50%;border:2px solid var(--line)}
+.seg button{padding:6px 14px;border-radius:9px;background:var(--hover);margin-right:6px}.seg .on,.sw .on{outline:2px solid var(--accent)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-top:10px}.cal span{padding:8px 0;border-radius:50%}.cal .h{color:var(--ink2);font-size:12px}.cal .t{background:var(--accent);color:#fff}
+.big2{font-size:52px;font-weight:200;text-align:center;margin:18px 0;font-variant-numeric:tabular-nums}
+.chat{display:flex;flex-direction:column;gap:8px;height:100%;padding:12px}.msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.m{max-width:85%;padding:9px 12px;border-radius:14px;background:var(--hover);white-space:pre-wrap}.m.me{align-self:flex-end;background:var(--accent);color:#fff}
+.pv{flex:1;display:grid;place-items:center;padding:10px;min-height:0}.pv img{max-width:100%;max-height:100%;border-radius:8px}
+/* shell */
+#bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:2px;padding:5px;border-radius:22px;max-width:calc(100% - 16px);overflow-x:auto;z-index:90000}
+.tbtn{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;position:relative;flex:none}.tbtn:hover{background:var(--hover)}
+.tbtn.run::after{content:"";position:absolute;bottom:2px;left:50%;width:6px;height:3px;border-radius:3px;background:var(--ink2);transform:translateX(-50%)}
+.tbtn.act::after{width:16px;background:var(--accent)}
+.logo{width:22px;height:22px;display:grid;grid-template:1fr 1fr/1fr 1fr;gap:2px;transform:perspective(60px) rotateY(-14deg)}
+.logo i{border-radius:3px;background:var(--accent)}.logo i:nth-child(2){background:#7c5cf0}.logo i:nth-child(3){background:#19b5a5}.logo i:nth-child(4){background:#f2a65a}
+.sep{width:1px;background:var(--line);margin:8px 4px;flex:none}
+#sys{position:fixed;right:12px;bottom:calc(16px + env(safe-area-inset-bottom,0px));font-size:12px;padding:6px 12px;border-radius:14px;line-height:1.25;z-index:90000}
+@media(max-width:860px){#sys,#widgets{display:none}}
+#start,#qs{position:fixed;opacity:0;pointer-events:none;transition:.18s;z-index:90001;border-radius:24px;padding:18px}
+#start{left:50%;bottom:calc(74px + env(safe-area-inset-bottom,0px));width:min(580px,calc(100% - 16px));transform:translate(-50%,16px) scale(.97)}
+#start.open{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+#qs{right:12px;bottom:calc(74px + env(safe-area-inset-bottom,0px));width:300px;max-width:calc(100% - 16px);transform:translateY(10px)}
+#qs.open{opacity:1;transform:none;pointer-events:auto}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.app{padding:10px 4px;border-radius:12px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:5px}.app:hover{background:var(--hover)}
+.rec{display:flex;gap:12px;align-items:center;padding:7px 8px;border-radius:10px;width:100%;text-align:left}.rec:hover{background:var(--hover)}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.foot button{padding:7px 12px;border-radius:10px;display:flex;gap:8px;align-items:center}.foot button:hover{background:var(--hover)}
+.tog{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.tog button{padding:12px;border-radius:12px;text-align:left;background:var(--hover)}
+.tog button[aria-pressed=true]{background:var(--accent);color:#fff}input[type=range]{width:100%;accent-color:var(--accent)}
+#ctx{position:fixed;display:none;z-index:99000;min-width:180px;padding:5px;border-radius:12px;background:var(--gs);border:1px solid var(--line);box-shadow:0 12px 36px rgba(0,0,0,.3)}
+#ctx button{display:block;width:100%;text-align:left;padding:7px 12px;border-radius:7px}#ctx button:hover{background:var(--hover)}
+.ov{position:fixed;inset:0;z-index:99500;display:grid;place-items:center;background:rgba(0,0,0,.25)}
+.dlg{background:var(--gs);padding:18px;border-radius:16px;width:min(340px,92%);display:grid;gap:12px}.dlg .r{display:flex;gap:8px;justify-content:flex-end}
+#lock{position:fixed;inset:0;z-index:95000;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.35);background:linear-gradient(rgba(10,15,40,.25),rgba(10,15,40,.45));backdrop-filter:blur(14px);transition:transform .5s,opacity .5s;cursor:pointer}
+#lock.up{transform:translateY(-100%);opacity:0;pointer-events:none}#lock .t{font-size:clamp(64px,16vw,130px);font-weight:200;line-height:1}#lock .d{font-size:20px;margin-top:8px}#lock .h{position:absolute;bottom:40px;font-size:13px;opacity:.85}
+#off{position:fixed;inset:0;z-index:96000;background:#000;color:#9aa4c0;display:none;place-items:center;text-align:center;cursor:pointer}
+#dim{position:fixed;inset:0;z-index:100000;background:#000;opacity:0;pointer-events:none}#night{position:fixed;inset:0;z-index:100000;background:rgba(255,150,40,.16);pointer-events:none;display:none}
+.spin{width:28px;height:28px;border:3px solid #333;border-top-color:#fff;border-radius:50%;animation:s 1s linear infinite;margin:0 auto 12px}@keyframes s{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+body.left #bar{left:8px;transform:none}
+body.left #start{left:8px;transform:translateY(16px) scale(.97)}body.left #start.open{transform:none}
+body.hc{--glass:#000;--gs:#000;--ink:#fff;--ink2:#ffeb3b;--line:#fff;--hover:#222}
+body.rm *{transition:none!important;animation:none!important}
+body.nt .glass{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--gs)!important}
+#tray{display:flex;gap:10px;align-items:center;color:var(--ink)}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:600;font-size:13px;flex:none}
+#lclk{text-align:center;pointer-events:none}
+#login{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(320px,90vw);cursor:default}
+#lname{font-size:22px}.lrow{display:flex;gap:6px;width:100%}
+.lrow input{flex:1;min-width:0;padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.18);color:#fff;font:inherit}
+.lrow input::placeholder{color:rgba(255,255,255,.85)}
+.lrow button,.lbtn{padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.22);color:#fff}
+#lusers,#lmodes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}#lmsg{min-height:20px;font-size:13px;text-align:center}
+#fv video,.fvh video{width:150px;height:150px;border-radius:50%;object-fit:cover;transform:scaleX(-1)}
+#oobe{position:fixed;inset:0;z-index:96500;display:grid;place-items:center;background:rgba(10,15,40,.55);backdrop-filter:blur(16px)}
+.oobe-card{width:min(400px,92vw);padding:24px;border-radius:22px;display:grid;gap:12px;background:var(--gs)}
+.oobe-card h2{margin:0}.oobe-card label{display:grid;gap:4px;font-size:13px;color:var(--ink2)}.oobe-card .chk{display:flex;gap:8px;align-items:center}
+#toasts{position:fixed;right:14px;bottom:84px;display:grid;gap:8px;z-index:90002}
+.toast{width:300px;padding:12px 14px;border-radius:14px;cursor:pointer;background:var(--gs)}
+#tv{position:fixed;inset:0;z-index:89000;background:rgba(10,15,40,.45);backdrop-filter:blur(10px);display:flex;flex-wrap:wrap;gap:16px;align-content:center;justify-content:center;padding:40px 40px 100px}
+.tvc{width:200px;height:140px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--ink);padding:8px;text-align:center}
+.sset{flex:1;display:flex;min-height:0}
+.snav{width:210px;padding:10px;overflow:auto;border-right:1px solid var(--line);flex:none}
+.snav button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:8px 10px;border-radius:8px;font-size:13px}
+.snav button:hover{background:var(--hover)}.snav button.on{background:var(--hover);box-shadow:inset 3px 0 var(--accent)}
+.spage{flex:1;overflow:auto;padding:16px 20px;min-width:0}.spage h2{margin:0 0 12px;font-size:22px;font-weight:600}.spage h3{font-size:15px}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;background:var(--hover);margin-bottom:6px}
+.srow small{display:block;color:var(--ink2);font-weight:400}.ctl{display:flex;gap:8px;align-items:center;flex:none;flex-wrap:wrap;justify-content:flex-end}
+.tgl{width:42px;height:22px;border-radius:11px;background:var(--line);position:relative;transition:.15s;flex:none}
+.tgl::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--ink);transition:.15s}
+.tgl[aria-checked=true]{background:var(--accent)}.tgl[aria-checked=true]::after{left:23px;background:#fff}
+.sb{padding:6px 12px;border-radius:8px;background:var(--line);display:inline-block;color:var(--ink);text-decoration:none;font-size:13px}.sb.pri{background:var(--accent);color:#fff}
+select,input[type=color]{padding:5px 8px;border-radius:8px;background:var(--gs);color:var(--ink);border:1px solid var(--line);font:inherit}
+.pbar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;width:100%;margin-top:8px}.pbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+@media(max-width:640px){.snav{width:54px}.snav span,.snav input{display:none}}
+.tabs{display:flex;gap:3px;padding:6px 8px 0;background:var(--hover);overflow-x:auto}
+.tab{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:9px 9px 0 0;font-size:12px;max-width:190px;flex:none;cursor:default}
+.tab.on{background:var(--gs)}.tab button{padding:0 4px;border-radius:5px}.tab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk{display:flex;gap:6px;padding:4px 8px;font-size:12px;border-bottom:1px solid var(--line);overflow-x:auto}
+.bk a{color:var(--ink);text-decoration:none;padding:3px 9px;border-radius:7px;background:var(--hover);flex:none}
+.pgc{flex:1;overflow:auto}.shelf{display:flex;gap:8px;padding:6px 8px;border-top:1px solid var(--line)}.shelf:empty{display:none}.dli{min-width:170px;font-size:12px}
+.vs{flex:1;display:flex;min-height:0;background:#1b1f2e;color:#d6deeb;font-size:13px}
+.vside{width:190px;flex:none;border-right:1px solid #2c3350;display:flex;flex-direction:column;background:#171b29}
+.vh{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;font-size:11px;color:#8b97b8}.vh button{color:#d6deeb;padding:0 6px;font-size:16px}
+.vtree{flex:1;overflow:auto}.ti{padding:3px 8px;cursor:pointer;white-space:nowrap}.ti:hover{background:#252b43}.ti.on{background:#2a3358}
+.vmain{flex:1;min-width:0;display:flex;flex-direction:column}
+.vtabs{display:flex;background:#171b29;overflow-x:auto;min-height:32px}.vtab{display:flex;gap:8px;align-items:center;padding:7px 12px;font-size:12px;border-right:1px solid #2c3350;color:#8b97b8;flex:none;cursor:pointer}
+.vtab.on{background:#1b1f2e;color:#fff;box-shadow:inset 0 2px #3a6df0}.vtab button{color:inherit;padding:0 3px}
+.ed{flex:1;display:flex;min-height:0;position:relative}
+.gut,.hl,.ed textarea{font:13px/1.55 Consolas,"Cascadia Mono",monospace;padding:10px 12px;margin:0;border:0;tab-size:2}
+.gut{width:46px;flex:none;text-align:right;color:#5d6a8e;overflow:hidden;white-space:pre;user-select:none}
+.edw{flex:1;position:relative;min-width:0}
+.hl{position:absolute;inset:0;white-space:pre;overflow:hidden;pointer-events:none;color:#d6deeb}
+.ed textarea{position:absolute;inset:0;width:100%;height:100%;color:transparent;caret-color:#fff;background:transparent;resize:none;outline:0;white-space:pre;overflow:auto}
+.ed textarea::selection{background:rgba(100,150,255,.4);color:transparent}
+.hl .c{color:#6b7a99;font-style:italic}.hl .s{color:#ecc48d}.hl .n{color:#f78c6c}.hl .k{color:#c792ea}
+.vpanel{height:140px;flex:none;border-top:1px solid #2c3350;display:flex;flex-direction:column;background:#171b29}
+.vph{display:flex;gap:8px;align-items:center;padding:4px 10px;font-size:11px;color:#8b97b8}.vph b{flex:1}.vph button{padding:3px 10px;border-radius:6px;background:#2c3350;color:#fff}
+.vout{flex:1;overflow:auto;padding:6px 12px;white-space:pre-wrap;font:12px/1.5 Consolas,monospace}.vout iframe{width:100%;height:100%;border:0;background:#fff;border-radius:6px}
+.vst{background:#3a6df0;color:#fff!important;border:0!important}
+
+:root[data-theme="midnight"]{--glass:rgba(4,6,16,.66);--gs:rgba(5,7,16,.97);--line:rgba(255,255,255,.1);--ink:#e8ecff;--ink2:#8f9ac0;--hover:rgba(255,255,255,.07);--w1:#0a1a55;--w2:#2a1160;--w3:#3b1020;--w4:#06303a;--bg:#000}
+.win{border-radius:var(--rad,12px)}.pgc{position:relative}
+</style>
+</head>
+<body>
+<div id="wall"></div>
+<div id="desk">
+  <div id="icons"></div>
+  <div id="widgets">
+    <div class="card glass"><h3 id="wd">Friday</h3><div class="big" id="wt">--:--</div></div>
+    <div class="card glass"><h3>Weather</h3><div class="big">27°</div><div class="row"><span>Hazy sun</span><span>H 31° L 21°</span></div></div>
+  </div>
+</div>
+
+<div id="start" class="glass" role="dialog" aria-label="Start">
+  <input class="search" id="q" placeholder="Search apps" aria-label="Search apps">
+  <div class="sec">All apps</div><div class="grid" id="pins"></div>
+  <div class="sec">Recommended</div><div id="recs"></div>
+  <div class="foot"><span>You</span><button id="pw" aria-label="Power"></button></div>
+</div>
+
+<div id="qs" class="glass" role="dialog" aria-label="Quick settings">
+  <div class="tog">
+    <button aria-pressed="true">Wi-Fi<br><small>Home 5G</small></button>
+    <button aria-pressed="true">Bluetooth<br><small>2 devices</small></button>
+    <button id="tdark" aria-pressed="false">Dark mode<br><small>Off</small></button>
+    <button id="tnight" aria-pressed="false">Night light<br><small>Off</small></button>
+  </div>
+  <div class="sec" style="margin-top:0">Volume</div><input type="range" value="60" aria-label="Volume">
+  <div class="sec">Brightness</div><input type="range" id="br" min="30" max="100" value="100" aria-label="Brightness">
+</div>
+
+<div id="sys" class="glass"><button id="qbtn" aria-label="Quick settings and clock" style="display:flex;gap:12px;align-items:center;text-align:right"><span id="tray"></span><span><span id="ct">--:--</span><br><span id="cd"></span></span></button></div>
+<div id="bar" class="glass" role="toolbar" aria-label="Taskbar">
+  <button class="tbtn" id="sbtn" aria-label="Start"><div class="logo"><i></i><i></i><i></i><i></i></div></button>
+  <button class="tbtn" id="sbtn2" aria-label="Search"></button><button class="tbtn" id="tvbtn" aria-label="Task view"></button>
+  <div class="sep"></div><div id="tasks" style="display:flex;gap:2px"></div>
+</div>
+<div id="ctx"></div><div id="toasts" aria-live="polite"></div><div id="tv" hidden></div><div id="oobe" hidden></div>
+<div id="lock" tabindex="0"><div id="lclk"><div class="t" id="lt">--:--</div><div class="d" id="ld"></div><div class="h">Click or press any key to sign in</div></div>
+<div id="login" hidden><div id="lusers"></div><div id="lav"></div><div id="lname"></div><div id="fv"></div>
+<div class="lrow"><input id="lpw" type="password" aria-label="Password" autocomplete="off"><button id="lgo">→</button></div><div id="lmsg" aria-live="polite"></div><div id="lmodes"></div>
+<button id="lforgot" class="lbtn" style="background:none;font-size:12px">Forgot password?</button><button id="lback" class="lbtn" style="background:none;font-size:12px">Cancel</button></div></div>
+<div id="off"><div><div class="spin" id="sp"></div><div id="offt"></div></div></div>
+<div id="night"></div><div id="dim"></div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)],root=document.documentElement;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ---------- icons (original flat designs) ---------- */
+const I={
+folder:'<path d="M3 8a2 2 0 0 1 2-2h7l3 3h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="#f2b630"/><path d="M3 13h26v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="#ffd66b"/>',
+note:'<rect x="6" y="3" width="20" height="26" rx="3" fill="#4fb3f6"/><rect x="6" y="3" width="20" height="7" rx="3" fill="#2a86d8"/><path d="M10 15h12M10 19h12M10 23h8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>',
+calc:'<rect x="6" y="3" width="20" height="26" rx="3" fill="#3d4a66"/><rect x="9" y="6" width="14" height="6" rx="1.5" fill="#9fe1c9"/><g fill="#fff"><circle cx="11" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/><circle cx="21" cy="17" r="1.6"/><circle cx="11" cy="22" r="1.6"/><circle cx="16" cy="22" r="1.6"/><circle cx="21" cy="22" r="1.6" fill="#f2a65a"/><circle cx="11" cy="26" r="1.2"/><circle cx="16" cy="26" r="1.2"/></g>',
+paint:'<path d="M16 4C9 4 4 9 4 15s5 12 11 12c2 0 3-1 3-3 0-2 1-3 3-3h3c3 0 4-2 4-5C28 8 22 4 16 4z" fill="#f4f1ea" stroke="#c9c2b0"/><circle cx="11" cy="13" r="2" fill="#e5484d"/><circle cx="17" cy="10" r="2" fill="#3a6df0"/><circle cx="22" cy="14" r="2" fill="#19b5a5"/><circle cx="12" cy="20" r="2" fill="#f2a65a"/>',
+term:'<rect x="3" y="5" width="26" height="22" rx="3" fill="#1d2433"/><path d="M8 12l5 4-5 4" stroke="#7cf0a8" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 21h8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>',
+gear:'<circle cx="16" cy="16" r="10" fill="none" stroke="#8aa0c8" stroke-width="4" stroke-dasharray="4.2 4.1"/><circle cx="16" cy="16" r="6.5" fill="none" stroke="#8aa0c8" stroke-width="4"/><circle cx="16" cy="16" r="2" fill="#8aa0c8"/>',
+globe:'<circle cx="16" cy="16" r="12" fill="#2f8fe0"/><path d="M4 16h24M16 4c-6 6-6 18 0 24M16 4c6 6 6 18 0 24" stroke="#fff" fill="none" stroke-width="1.6"/><path d="M8 9c3 2 6 1 8-1" stroke="#7cf0a8" fill="none" stroke-width="2"/>',
+tm:'<rect x="4" y="5" width="24" height="22" rx="3" fill="#25324d"/><path d="M7 21l5-6 4 3 4-8 5 5" stroke="#5de0b0" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+cal:'<rect x="4" y="6" width="24" height="22" rx="3" fill="#fff" stroke="#c9d3e6"/><rect x="4" y="6" width="24" height="7" rx="3" fill="#e5484d"/><g fill="#3a6df0"><circle cx="11" cy="18" r="1.5"/><circle cx="16" cy="18" r="1.5"/><circle cx="21" cy="18" r="1.5"/><circle cx="11" cy="23" r="1.5"/><circle cx="16" cy="23" r="1.5"/></g>',
+clock:'<circle cx="16" cy="16" r="12" fill="#fff" stroke="#3a6df0" stroke-width="2.5"/><path d="M16 9v7l5 3" stroke="#3a6df0" fill="none" stroke-width="2.4" stroke-linecap="round"/>',
+pc:'<rect x="4" y="6" width="24" height="16" rx="2" fill="#4fb3f6"/><rect x="6" y="8" width="20" height="12" rx="1" fill="#7cc8fa"/><rect x="13" y="23" width="6" height="3" fill="#8aa0c8"/><rect x="9" y="26" width="14" height="2" rx="1" fill="#8aa0c8"/>',
+bin:'<path d="M8 10h16l-1.5 17a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2z" fill="#b9c6dd"/><rect x="6" y="6.5" width="20" height="3.5" rx="1.5" fill="#8aa0c8"/><rect x="12" y="3" width="8" height="3.5" rx="1" fill="#8aa0c8"/><path d="M13 14v10M16 14v10M19 14v10" stroke="#8aa0c8" stroke-width="1.5"/>',
+photo:'<rect x="3" y="6" width="26" height="20" rx="3" fill="#8bd3ff"/><circle cx="22" cy="12" r="2.5" fill="#fff3a0"/><path d="M3 24l8-9 6 6 4-4 8 8v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="#3fae7a"/>',
+spark:'<path d="M16 3l3.2 8.8L28 15l-8.8 3.2L16 27l-3.2-8.8L4 15l8.8-3.2z" fill="#8b6cf6"/><circle cx="25" cy="7" r="2.5" fill="#f2a65a"/>',
+search:'<circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 20l7 7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
+power:'<path d="M16 4v11M9 8.5a10 10 0 1 0 14 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>'};
+const ic=(k,s=32)=>`<svg viewBox="0 0 32 32" width="${s}" height="${s}" aria-hidden="true">${I[k]}</svg>`;
+const APPS={
+ explorer:{n:'File Explorer',i:'folder',w:640,h:400},browser:{n:'Browser',i:'globe',w:700,h:440},
+ notepad:{n:'Notepad',i:'note',w:480,h:360,multi:1},calc:{n:'Calculator',i:'calc',w:300,h:440},
+ paint:{n:'Paint',i:'paint',w:660,h:480},term:{n:'Terminal',i:'term',w:580,h:350,multi:1},
+ photos:{n:'Photos',i:'photo',w:520,h:400,multi:1},cal:{n:'Calendar',i:'cal',w:360,h:400},
+ clock:{n:'Clock',i:'clock',w:340,h:340},tm:{n:'Task Manager',i:'tm',w:500,h:340},
+ set:{n:'Settings',i:'gear',w:460,h:440},assist:{n:'Assist',i:'spark',w:380,h:430}};
+const PIN=['explorer','browser','notepad','calc','paint','term','set'];
+const ALIAS={explorer:'explorer',files:'explorer','this pc':'explorer',folder:'explorer',browser:'browser',edge:'browser',web:'browser',notepad:'notepad',notes:'notepad',calc:'calc',calculator:'calc',paint:'paint',draw:'paint',terminal:'term',cmd:'term',powershell:'term',photos:'photos',photo:'photos',pictures:'photos',calendar:'cal',clock:'clock',timer:'clock',stopwatch:'clock','task manager':'tm',taskmgr:'tm',settings:'set',assist:'assist'};
+const findApp=t=>{t=t.toLowerCase();for(const k in ALIAS)if(new RegExp('\\b'+k+'\\b').test(t))return ALIAS[k]};
+/* ---------- file system ---------- */
+let FS,BIN,CFG={theme:'system',acc:'#3a6df0',wp:0};
+const D=()=>({t:'d',c:{}});
+function seed(){FS=D();['Desktop','Documents','Downloads','Pictures','Music'].forEach(n=>FS.c[n]=D());
+ FS.c.Documents.c['Welcome.txt']={t:'f',v:'Welcome to the Windows 12 concept!\n\nEverything here works: create files, draw in Paint, run commands in Terminal.\nYour files are kept in this browser.'};
+ FS.c.Documents.c['To do.txt']={t:'f',v:'- Draw something in Paint and save it\n- Open Terminal and type help\n- Change the accent colour in Settings'};BIN=[]}
+function load(){try{const s=JSON.parse(localStorage.getItem('w12')||'null');if(s&&s.fs){FS=s.fs;BIN=s.bin||[];Object.assign(CFG,s.cfg);return}}catch(e){}seed()}
+function save(){try{localStorage.setItem('w12',JSON.stringify({fs:FS,bin:BIN,cfg:CFG}))}catch(e){}}
+const node=p=>p.reduce((n,k)=>n&&n.c&&n.c[k],FS);
+const kind=(n,v)=>v.t==='d'?'folder':v.t==='i'?'photo':'note';
+function uniq(p,n){const d=node(p).c;if(!d[n])return n;const i=n.lastIndexOf('.'),b=i>0?n.slice(0,i):n,e=i>0?n.slice(i):'';let k=2;while(d[b+' ('+k+')'+e])k++;return b+' ('+k+')'+e}
+function put(p,n,v){n=uniq(p,n);node(p).c[n]=v;save();refresh();return n}
+function trash(p,n){const d=node(p);BIN.push({n,v:d.c[n],p});delete d.c[n];save();refresh()}
+function refresh(){desk();Object.values(W).forEach(w=>w.api.render&&w.api.render())}
+/* ---------- windows ---------- */
+let W={},zi=10,uid=0;
+function open(k,o={}){hideMenus();const a=APPS[k];
+ if(!a.multi){const ex=Object.values(W).find(w=>w.k===k);if(ex){show(ex.id);ex.api.go&&o.path&&ex.api.go(o.path);return ex}}
+ const id=k+(++uid),el=document.createElement('div'),n=Object.keys(W).length%7,wd=Math.min(a.w,innerWidth-16);
+ el.className='win glass';el.setAttribute('role','dialog');el.setAttribute('aria-label',a.n);
+ el.style.cssText=`width:${wd}px;height:${Math.min(a.h,innerHeight-100)}px;left:${Math.max(8,Math.min(innerWidth-wd-8,110+n*32))}px;top:${40+n*28}px`;
+ el.innerHTML=`<div class="tb">${ic(a.i,16)}<b>${a.n}</b><button data-a="min" aria-label="Minimise">–</button><button data-a="max" aria-label="Maximise">▢</button><button class="x" data-a="x" aria-label="Close">✕</button></div><div class="body" tabindex="-1"></div>`;
+ $('#desk').appendChild(el);
+ const w=W[id]={id,k,el,api:{}};w.title=t=>$('.tb b',el).textContent=t;
+ el.addEventListener('pointerdown',()=>show(id),true);
+ $('.tb',el).onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const x=b.dataset.a;x==='x'?close(id):x==='min'?mini(id):toggleMax(el)};
+ drag(w);BUILD[k](w,$('.body',el),o);
+ if(innerWidth<640)el.classList.add('max');
+ show(id);return w}
+function close(id){const w=W[id];if(!w)return;w.api.close&&w.api.close();w.el.remove();delete W[id];tasks()}
+function show(id){const w=W[id];if(!w)return;w.el.hidden=false;$$('.win').forEach(x=>x.classList.remove('focus'));w.el.classList.add('focus');w.el.style.zIndex=++zi;tasks();w.api.focus&&w.api.focus()}
+function mini(id){const w=W[id];w.el.hidden=true;w.el.classList.remove('focus');tasks()}
+function toggleMax(el){el.classList.remove('snapL','snapR');el.classList.toggle('max')}
+function drag(w){const el=w.el,tb=$('.tb',el);
+ tb.ondblclick=e=>{if(!e.target.closest('button'))toggleMax(el)};
+ tb.onpointerdown=e=>{if(e.target.closest('button'))return;let moved=0,ox=e.clientX-el.offsetLeft,oy=e.clientY-el.offsetTop;const sx=e.clientX,sy=e.clientY;tb.setPointerCapture(e.pointerId);
+  tb.onpointermove=m=>{if(!moved){if(Math.hypot(m.clientX-sx,m.clientY-sy)<4)return;moved=1;
+    if(/max|snap/.test(el.className)){el.classList.remove('max','snapL','snapR');ox=el.offsetWidth/2;oy=14}}
+   el.style.left=Math.max(-el.offsetWidth+80,Math.min(innerWidth-80,m.clientX-ox))+'px';el.style.top=Math.max(0,Math.min(innerHeight-80,m.clientY-oy))+'px'};
+  tb.onpointerup=m=>{tb.onpointermove=tb.onpointerup=null;if(!moved)return;
+   if(m.clientY<6)el.classList.add('max');else if(m.clientX<6)el.classList.add('snapL');else if(m.clientX>innerWidth-6)el.classList.add('snapR')}}}
+function tasks(){const run=Object.values(W),ks=[...new Set([...PIN,...run.map(w=>w.k)])];
+ $('#tasks').innerHTML=ks.map(k=>{const ws=run.filter(w=>w.k===k),f=ws.some(w=>w.el.classList.contains('focus')&&!w.el.hidden);
+  return `<button class="tbtn ${ws.length?'run':''} ${f?'act':''}" data-t="${k}" aria-label="${APPS[k].n}" title="${APPS[k].n}">${ic(APPS[k].i,28)}</button>`}).join('')}
+$('#tasks').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;const k=b.dataset.t,ws=Object.values(W).filter(w=>w.k===k);
+ if(!ws.length)return open(k);if(ws.some(w=>w.el.classList.contains('focus')&&!w.el.hidden))ws.forEach(w=>mini(w.id));else show(ws[ws.length-1].id)};
+/* ---------- shell: menus, context menu, dialogs ---------- */
+function hideCtx(){$('#ctx').style.display='none'}
+function hideMenus(){$('#start').classList.remove('open');$('#qs').classList.remove('open');hideCtx()}
+function ctx(x,y,items){const m=$('#ctx');m.innerHTML='';items.forEach(it=>{const b=document.createElement('button');b.textContent=it.l;b.onclick=()=>{hideCtx();it.f()};m.appendChild(b)});
+ m.style.display='block';m.style.left=Math.max(4,Math.min(x,innerWidth-190))+'px';m.style.top=Math.max(4,Math.min(y,innerHeight-items.length*34-12))+'px'}
+function dlg(t,v,cb){const o=document.createElement('div');o.className='ov';o.innerHTML=`<div class="dlg"><b>${esc(t)}</b><input class="search" value="${esc(v)}"><div class="r"><button class="pri">OK</button><button>Cancel</button></div></div>`;
+ document.body.appendChild(o);const i=$('input',o);i.focus();i.select();const done=ok=>{o.remove();ok&&cb(i.value)};
+ $('.pri',o).onclick=()=>done(1);$$('button',o)[1].onclick=()=>done(0);o.onkeydown=e=>{if(e.key==='Enter')done(1);if(e.key==='Escape')done(0)}}
+function openItem(p,n){const v=node(p).c[n];if(!v)return;
+ if(v.t==='d')open('explorer',{path:p.concat(n)});else if(v.t==='i')open('photos',{name:n});else open('notepad',{path:p,name:n})}
+function itemMenu(e,p,n){e.preventDefault();e.stopPropagation();ctx(e.clientX,e.clientY,[{l:'Open',f:()=>openItem(p,n)},
+ {l:'Rename',f:()=>dlg('Rename',n,v=>{v=v.trim();if(v&&v!==n){const d=node(p),k=uniq(p,v);d.c[k]=d.c[n];delete d.c[n];save();refresh()}})},{l:'Delete',f:()=>trash(p,n)}])}
+/* desktop */
+function desk(){const sys=[['This PC','pc',()=>open('explorer',{path:[]})],['Recycle Bin','bin',()=>open('explorer',{path:['Recycle Bin']})],['Browser','globe',()=>open('browser')]];
+ window.SYS=sys;const items=Object.entries(node(['Desktop']).c).sort((a,b)=>a[0].localeCompare(b[0]));
+ $('#icons').innerHTML=sys.map((s,i)=>`<button class="dicon" data-s="${i}">${ic(s[1],40)}${s[0]}</button>`).join('')+items.map(([n,v])=>`<button class="dicon" data-n="${esc(n)}">${ic(kind(n,v),40)}${esc(n)}</button>`).join('')}
+const act=b=>{if(b.dataset.s!=null)SYS[b.dataset.s][2]();else openItem(['Desktop'],b.dataset.n)};
+$('#icons').onclick=e=>{const b=e.target.closest('.dicon');$$('.dicon').forEach(x=>x.classList.remove('sel'));if(!b)return;b.classList.add('sel');if(matchMedia('(pointer:coarse)').matches)act(b)};
+$('#icons').ondblclick=e=>{const b=e.target.closest('.dicon');b&&act(b)};
+$('#desk').onclick=e=>{if(e.target.id==='desk')$$('.dicon').forEach(x=>x.classList.remove('sel'))};
+document.addEventListener('contextmenu',e=>{if(e.target.closest('.win,#bar,#start,#qs,#ctx,#lock'))return;e.preventDefault();
+ const b=e.target.closest('.dicon');if(b&&b.dataset.n!=null)return itemMenu(e,['Desktop'],b.dataset.n);
+ ctx(e.clientX,e.clientY,[{l:'New folder',f:()=>dlg('New folder','New folder',v=>put(['Desktop'],v.trim()||'New folder',D()))},
+  {l:'New text document',f:()=>put(['Desktop'],'New text document.txt',{t:'f',v:''})},{l:'Open Terminal',f:()=>open('term')},{l:'Personalise',f:()=>open('set')},{l:'Refresh',f:refresh}])});
+document.addEventListener('click',e=>{if(!e.target.closest('#start,#qs,#sbtn,#sbtn2,#qbtn,#ctx'))hideMenus()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hideMenus()});
+/* start menu */
+$('#pins').innerHTML=Object.entries(APPS).map(([k,a])=>`<button class="app" data-app="${k}">${ic(a.i,34)}${a.n}</button>`).join('');
+$('#sbtn2').innerHTML=ic('search',20);$('#pw').innerHTML=ic('power',18)+'Power';
+function startOpen(){const o=!$('#start').classList.contains('open');hideMenus();if(o){const r=Object.entries(node(['Documents']).c).filter(([,v])=>v.t!=='d').slice(0,2);
+ $('#recs').innerHTML=r.map(([n,v])=>`<button class="rec" data-f="${esc(n)}">${ic(kind(n,v),30)}<span>${esc(n)}<small style="display:block;color:var(--ink2)">Documents</small></span></button>`).join('')||'<div style="color:var(--ink2);padding:6px">No recent files</div>';
+ $('#start').classList.add('open');$('#q').value='';filterApps('');$('#q').focus()}}
+$('#sbtn').onclick=startOpen;$('#sbtn2').onclick=startOpen;
+$('#start').onclick=e=>{const a=e.target.closest('[data-app]'),f=e.target.closest('[data-f]');if(a)open(a.dataset.app);if(f){hideMenus();openItem(['Documents'],f.dataset.f)}};
+function filterApps(v){v=v.toLowerCase();$$('#pins .app').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(v))}
+$('#q').oninput=e=>filterApps(e.target.value);
+$('#q').onkeydown=e=>{if(e.key==='Enter'){const b=$$('#pins .app').find(x=>!x.hidden);b&&open(b.dataset.app)}};
+$('#pw').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();ctx(r.left,r.top-110,[{l:'Lock',f:lock},{l:'Restart',f:()=>power(1)},{l:'Shut down',f:()=>power(0)}])};
+function lock(){hideMenus();$('#lock').classList.remove('up');$('#lock').focus()}
+function unlock(){$('#lock').classList.add('up')}
+function power(re){hideMenus();Object.keys(W).forEach(close);const o=$('#off');o.style.display='grid';$('#sp').style.display=re?'block':'none';$('#offt').textContent=re?'Restarting':'Click anywhere to turn on';
+ if(re)setTimeout(()=>{o.style.display='none';lock()},1600)}
+$('#off').onclick=()=>{if($('#sp').style.display==='none'){$('#off').style.display='none';lock()}};
+/* quick settings */
+$('#qbtn').onclick=()=>{const o=!$('#qs').classList.contains('open');hideMenus();if(o)$('#qs').classList.add('open')};
+$$('.tog button').forEach(b=>{if(!b.id)b.onclick=()=>b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')});
+const isDark=()=>CFG.theme==='dark'||(CFG.theme==='system'&&matchMedia('(prefers-color-scheme:dark)').matches);
+$('#tdark').onclick=()=>{CFG.theme=isDark()?'light':'dark';apply();save()};
+$('#tnight').onclick=e=>{const b=e.currentTarget,on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);$('small',b).textContent=on?'On':'Off';$('#night').style.display=on?'block':'none'};
+$('#br').oninput=e=>$('#dim').style.opacity=(1-e.target.value/100)*.75;
+function apply(){root.style.setProperty('--accent',CFG.acc);CFG.theme==='system'?root.removeAttribute('data-theme'):root.dataset.theme=CFG.theme;
+ $('#wall').style.filter=`hue-rotate(${[0,70,160,250][CFG.wp]}deg)`;const d=isDark();$('#tdark').setAttribute('aria-pressed',d);$('#tdark small').textContent=d?'On':'Off'}
+/* clock */
+function tick(){const d=new Date(),t=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),ds=d.toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'}),wd=d.toLocaleDateString([],{weekday:'long'});
+ $('#ct').textContent=t;$('#wt').textContent=t;$('#lt').textContent=t;$('#cd').textContent=ds;$('#wd').textContent=wd;$('#ld').textContent=wd+', '+d.toLocaleDateString([],{day:'numeric',month:'long'})}
+/* ---------- app builders ---------- */
+const BUILD={};
+function evalx(s){s=s.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-');if(!s.trim())return'0';if(!/^[0-9+\-*/.() ]+$/.test(s))return'Error';
+ try{const v=Function('"use strict";return ('+s+')')();return isFinite(v)?String(+v.toPrecision(12)):'Cannot divide by zero'}catch(e){return'Error'}}
+BUILD.explorer=(w,b,o)=>{let p=o.path||[],h=[],sel=null;
+ const side=[['This PC',[],'pc'],['Desktop',['Desktop'],'folder'],['Documents',['Documents'],'folder'],['Downloads',['Downloads'],'folder'],['Pictures',['Pictures'],'photo'],['Music',['Music'],'folder'],['Recycle Bin',['Recycle Bin'],'bin']];
+ b.innerHTML=`<div class="bar"><button data-c="back" title="Back">←</button><button data-c="up" title="Up">↑</button><div class="addr"></div><button data-c="nf">New folder</button><button data-c="nt">New text file</button><button data-c="del">Delete</button></div><div class="split"><nav class="side">${side.map((s,i)=>`<button data-s="${i}">${ic(s[2],18)}${s[0]}</button>`).join('')}</nav><div class="fl" tabindex="0"></div></div><div class="status"></div>`;
+ const fl=$('.fl',b),inBin=()=>p[0]==='Recycle Bin';
+ function render(){if(!inBin()&&!node(p))p=[];$('.addr',b).textContent=['This PC',...p].join(' › ');
+  $$('.side button',b).forEach((x,i)=>x.classList.toggle('on',side[i][1].join('/')===p.join('/')));sel=null;
+  if(inBin()){fl.innerHTML=BIN.length?BIN.map((x,i)=>`<div data-b="${i}">${ic(kind(x.n,x.v),36)}<span>${esc(x.n)}</span></div>`).join(''):'<p class="empty">Recycle Bin is empty</p>';
+   $('.status',b).innerHTML=BIN.length+' items <button data-c="empty">Empty Recycle Bin</button> Double-click an item to restore it'}
+  else{const e=Object.entries(node(p).c).sort((a,c)=>(c[1].t==='d')-(a[1].t==='d')||a[0].localeCompare(c[0]));
+   fl.innerHTML=e.length?e.map(([n,v])=>`<div data-n="${esc(n)}">${ic(kind(n,v),36)}<span>${esc(n)}</span></div>`).join(''):'<p class="empty">This folder is empty</p>';$('.status',b).textContent=e.length+' items'}}
+ function go(np,push=1){if(push)h.push(p);p=np;render()}
+ function restore(i){const x=BIN.splice(i,1)[0];if(!x)return;if(!node(x.p))x.p=['Documents'];put(x.p,x.n,x.v)}
+ function del(){if(sel==null||(!inBin()&&!p.length))return;if(inBin()){BIN.splice(+sel,1);save();render()}else trash(p,sel)}
+ b.onclick=e=>{const c=e.target.closest('[data-c]'),s=e.target.closest('[data-s]'),it=e.target.closest('.fl>div');
+  if(s)return go(side[s.dataset.s][1]);
+  if(c){const x=c.dataset.c;if(x==='back')go(h.pop()||p,0);else if(x==='up'&&p.length)go(p.slice(0,-1));
+   else if(x==='nf'&&p.length&&!inBin())dlg('New folder','New folder',v=>put(p,v.trim()||'New folder',D()));
+   else if(x==='nt'&&p.length&&!inBin())put(p,'New text file.txt',{t:'f',v:''});
+   else if(x==='del')del();else if(x==='empty'){BIN.length=0;save();render()}return}
+  if(it){$$('.fl>div',b).forEach(x=>x.classList.remove('sel'));it.classList.add('sel');sel=inBin()?it.dataset.b:it.dataset.n}};
+ b.ondblclick=e=>{const it=e.target.closest('.fl>div');if(!it)return;if(inBin())restore(+it.dataset.b);else{const v=node(p).c[it.dataset.n];if(v&&v.t==='d')go(p.concat(it.dataset.n));else openItem(p,it.dataset.n)}};
+ b.oncontextmenu=e=>{const it=e.target.closest('.fl>div');if(!it||inBin())return;itemMenu(e,p,it.dataset.n)};
+ fl.onkeydown=e=>{if(e.key==='Delete')del()};
+ w.api.go=np=>go(np);w.api.render=render;render()};
+BUILD.notepad=(w,b,o)=>{let p=o.path||null,n=o.name||null,dirty=0;
+ b.innerHTML=`<div class="bar"><button data-c="new">New</button><button data-c="save">Save</button><button data-c="as">Save as</button></div><textarea spellcheck="false" aria-label="Text"></textarea><div class="status"></div>`;
+ const t=$('textarea',b),st=()=>{const c=t.value.trim();$('.status',b).textContent=t.value.length+' characters · '+(c?c.split(/\s+/).length:0)+' words';w.title((dirty?'*':'')+(n||'Untitled')+' - Notepad')};
+ if(n){const f=node(p.concat(n));t.value=f?f.v:''}st();
+ const as=()=>dlg('Save as',n||'Untitled.txt',v=>{v=v.trim()||'Untitled.txt';p=p&&node(p)?p:['Documents'];n=put(p,v,{t:'f',v:t.value});dirty=0;st()});
+ const sv=()=>{const f=p&&n&&node(p.concat(n));if(f){f.v=t.value;save();dirty=0;st()}else as()};
+ t.oninput=()=>{dirty=1;st()};t.onkeydown=e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();sv()}};
+ b.onclick=e=>{const c=e.target.closest('[data-c]');if(!c)return;({new:()=>{t.value='';n=p=null;dirty=0;st()},save:sv,as}[c.dataset.c])()};
+ w.api.focus=()=>t.focus()};
+BUILD.calc=(w,b)=>{let ex='',res='0',fin=0;
+ b.innerHTML=`<div class="calc" tabindex="0"><div class="disp"><small></small><div>0</div></div><div class="keys">${['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','±','0','.','='].map(k=>`<button ${k==='='?'class="eq"':''} data-k="${k}">${k}</button>`).join('')}</div></div>`;
+ const c=$('.calc',b),sm=$('small',b),big=$('.disp div',b),draw=()=>{sm.textContent=ex;big.textContent=fin||!ex?res:ex};
+ function key(k){if(/[0-9.]/.test(k)){if(fin){ex='';fin=0}ex+=k}
+  else if('÷×−+'.includes(k)){if(fin){ex=res;fin=0}ex=ex.replace(/[÷×−+]$/,'')+k}
+  else if(k==='C'){ex='';res='0';fin=0}else if(k==='⌫')ex=ex.slice(0,-1);
+  else if(k==='±'){ex=ex.startsWith('−')?ex.slice(1):'−'+ex}
+  else if(k==='%'){const v=evalx(ex);if(!isNaN(v)){ex=String(+v/100)}}
+  else if(k==='='){if(!ex)return;res=evalx(ex);ex+=' =';fin=1}
+  if(!fin)res=ex?evalx(ex.replace(/[÷×−+]$/,'')):'0';draw()}
+ c.onclick=e=>{const k=e.target.closest('[data-k]');k&&key(k.dataset.k)};
+ c.onkeydown=e=>{const m={'/':'÷','*':'×','-':'−',Enter:'=','=':'=',Backspace:'⌫',Escape:'C'}[e.key]||e.key;if(/^[0-9.+]$|^[÷×−=⌫C]$/.test(m)){e.preventDefault();key(m)}};
+ w.api.focus=()=>c.focus()};
+BUILD.paint=(w,b)=>{const cols=['#141b2d','#e5484d','#e08a1e','#f5d90a','#30a46c','#19b5a5','#3a6df0','#7c5cf0'];let c=cols[0],er=0;
+ b.innerHTML=`<div class="bar"><div class="sw2">${cols.map(x=>`<button data-k="${x}" style="background:${x}" aria-label="Colour ${x}"></button>`).join('')}</div><input type="range" min="1" max="40" value="4" aria-label="Brush size" style="width:90px"><button data-c="er" aria-pressed="false">Eraser</button><button data-c="clr">Clear</button><button data-c="sv" class="pri">Save</button></div><div class="cvw"><canvas width="900" height="520"></canvas></div>`;
+ const cv=$('canvas',b),g=cv.getContext('2d'),sz=$('input',b);const blank=()=>{g.fillStyle='#fff';g.fillRect(0,0,900,520)};blank();g.lineCap=g.lineJoin='round';
+ const pt=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]};let d=0,l;
+ const ln=(a,z)=>{g.strokeStyle=er?'#fff':c;g.lineWidth=+sz.value;g.beginPath();g.moveTo(...a);g.lineTo(...z);g.stroke()};
+ cv.onpointerdown=e=>{d=1;cv.setPointerCapture(e.pointerId);l=pt(e);ln(l,l)};cv.onpointermove=e=>{if(!d)return;const q=pt(e);ln(l,q);l=q};cv.onpointerup=()=>d=0;
+ b.onclick=e=>{const k=e.target.closest('[data-k]'),x=e.target.closest('[data-c]');if(k){c=k.dataset.k;er=0;$('[data-c=er]',b).setAttribute('aria-pressed',false)}
+  if(x){const a=x.dataset.c;if(a==='er'){er=!er;x.setAttribute('aria-pressed',!!er)}else if(a==='clr')blank();else dlg('Save to Pictures','Drawing.png',v=>{v=v.trim()||'Drawing.png';put(['Pictures'],/\.png$/i.test(v)?v:v+'.png',{t:'i',v:cv.toDataURL('image/png')})})}}};
+BUILD.term=(w,b)=>{let cwd=[],hist=[],hi=0;b.classList.add('term');
+ b.innerHTML='<div class="out"></div><div class="ln"><span class="pr"></span><input spellcheck="false" autocomplete="off" aria-label="Command"></div>';
+ const out=$('.out',b),inp=$('input',b),pr=$('.pr',b),pm=()=>'C:\\Users\\You'+(cwd.length?'\\'+cwd.join('\\'):'')+'>',echo=s=>{out.insertAdjacentHTML('beforeend','<div>'+esc(s)+'</div>');b.scrollTop=1e6};
+ echo('Windows 12 Concept [Version 12.0.26100]\nType "help" to see the commands.\n');pr.textContent=pm();
+ const find=n=>{const d=node(cwd).c;return Object.keys(d).find(k=>k.toLowerCase()===n.toLowerCase())};
+ function run(line){echo(pm()+line);const [c,...a]=line.trim().split(/\s+/),arg=a.join(' '),cmd=(c||'').toLowerCase();
+  if(!cmd)return;const d=node(cwd).c;
+  if(cmd==='help')echo('help      this list\ndir / ls  list files\ncd <dir>  change folder (cd .. goes up)\nmkdir <n> new folder\ntype <f>  show a file\necho <t> [> file]  print or write text\ndel <n>   move to Recycle Bin\nstart <app>  open an app\ntasklist / taskkill <app>\ntheme dark|light\ndate, time, ver, whoami, cls, exit\n');
+  else if(cmd==='dir'||cmd==='ls'){const e=Object.entries(d);echo(e.length?e.map(([n,v])=>(v.t==='d'?'<DIR>  ':'       ')+n).join('\n')+'\n':'(empty)\n')}
+  else if(cmd==='cd'){if(arg==='..')cwd=cwd.slice(0,-1);else if(arg==='\\'||!arg)cwd=[];else{const k=find(arg);k&&d[k].t==='d'?cwd.push(k):echo('The system cannot find the path specified.\n')}pr.textContent=pm()}
+  else if(cmd==='mkdir'&&arg){put(cwd,arg,D())}else if(cmd==='type'||cmd==='cat'){const k=find(arg);k&&d[k].t==='f'?echo(d[k].v+'\n'):echo('File not found.\n')}
+  else if(cmd==='echo'){const m=arg.match(/^(.*?)\s*>\s*(.+)$/);if(m){const k=find(m[2]);k?d[k].v=m[1]:put(cwd,m[2],{t:'f',v:m[1]});save()}else echo(arg+'\n')}
+  else if(cmd==='del'||cmd==='rm'){const k=find(arg);k?trash(cwd,k):echo('File not found.\n')}
+  else if(cmd==='start'||cmd==='open'){const a=findApp(arg);a?open(a):echo('Unknown app: '+arg+'\n')}
+  else if(cmd==='tasklist')echo(Object.values(W).map(x=>APPS[x.k].n).join('\n')+'\n');
+  else if(cmd==='taskkill'){const a=findApp(arg);Object.values(W).filter(x=>x.k===a).forEach(x=>close(x.id));echo(a?'Ended '+APPS[a].n+'\n':'Unknown app\n')}
+  else if(cmd==='theme'){CFG.theme=/dark/.test(arg)?'dark':'light';apply();save()}
+  else if(cmd==='date'||cmd==='time')echo(new Date().toLocaleString()+'\n');else if(cmd==='ver')echo('Microsoft Windows [Version 12.0.26100] (concept)\n');
+  else if(cmd==='whoami')echo('desktop\\you\n');else if(cmd==='cls'||cmd==='clear')out.innerHTML='';else if(cmd==='exit')close(w.id);
+  else echo("'"+c+"' is not recognised. Type help.\n")}
+ inp.onkeydown=e=>{if(e.key==='Enter'){const v=inp.value;inp.value='';if(v.trim())hist.push(v);hi=hist.length;run(v)}
+  else if(e.key==='ArrowUp'){e.preventDefault();hi=Math.max(0,hi-1);inp.value=hist[hi]||''}else if(e.key==='ArrowDown'){e.preventDefault();hi=Math.min(hist.length,hi+1);inp.value=hist[hi]||''}};
+ b.onclick=()=>inp.focus();w.api.focus=()=>inp.focus()};
+BUILD.browser=(w,b)=>{b.innerHTML=`<div class="bar"><button data-c="home">⌂</button><input class="search" style="flex:1;min-width:140px" placeholder="Search or enter address" aria-label="Address"><button class="pri" data-c="go">Go</button></div><div class="bw"></div>`;
+ const bw=$('.bw',b),inp=$('input',b);const home=()=>{bw.innerHTML=`<h2 style="margin:0">Start page</h2><p style="color:var(--ink2)">Type a search or address above. Sites open in a new browser tab in this concept.</p><div class="tiles">${[['Wikipedia','https://wikipedia.org'],['Search','https://duckduckgo.com'],['News','https://bbc.com/news'],['GitHub','https://github.com'],['Maps','https://openstreetmap.org']].map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join('')}</div>`;inp.value=''};
+ const go=()=>{let v=inp.value.trim();if(!v)return;const u=/^https?:\/\//.test(v)?v:/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(v)?'https://'+v:'https://duckduckgo.com/?q='+encodeURIComponent(v);
+  bw.innerHTML=`<h3>Ready to open</h3><p><a href="${esc(u)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(u)}</a></p><p style="color:var(--ink2)">Opened in a new tab. If nothing happened, click the link.</p>`;try{window.open(u,'_blank','noopener')}catch(e){}};
+ b.onclick=e=>{const c=e.target.closest('[data-c]');if(c)c.dataset.c==='go'?go():home()};inp.onkeydown=e=>e.key==='Enter'&&go();home()};
+BUILD.photos=(w,b,o)=>{let i=0,want=o.name;b.innerHTML='<div class="pv"></div><div class="bar" style="justify-content:center;border-top:1px solid var(--line);border-bottom:0"><button data-c="p">← Previous</button><span class="cap"></span><button data-c="n">Next →</button></div>';
+ const list=()=>Object.entries(node(['Pictures']).c).filter(([,v])=>v.t==='i');
+ function render(){const l=list();if(want){const x=l.findIndex(a=>a[0]===want);if(x>=0)i=x;want=null}i=Math.min(i,Math.max(0,l.length-1));const c=l[i];
+  $('.pv',b).innerHTML=c?`<img alt="${esc(c[0])}" src="${c[1].v}">`:'<p class="empty">No photos yet. Draw something in Paint and press Save.</p>';$('.cap',b).textContent=c?c[0]+' ('+(i+1)+'/'+l.length+')':''}
+ b.onclick=e=>{const c=e.target.closest('[data-c]');if(!c)return;const n=list().length;if(n){i=(i+(c.dataset.c==='n'?1:-1)+n)%n;render()}};w.api.render=render;render()};
+BUILD.cal=(w,b)=>{let d=new Date();d.setDate(1);b.innerHTML='<div class="pad"><div class="row"><button data-c="-1" aria-label="Previous month">←</button><b class="mn"></b><button data-c="1" aria-label="Next month">→</button></div><div class="cal"></div></div>';
+ function r(){const t=new Date(),y=d.getFullYear(),m=d.getMonth(),first=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();$('.mn',b).textContent=d.toLocaleDateString([],{month:'long',year:'numeric'});
+  $('.cal',b).innerHTML=['S','M','T','W','T','F','S'].map(x=>`<span class="h">${x}</span>`).join('')+'<span></span>'.repeat(first)+Array.from({length:n},(_,k)=>`<span class="${y===t.getFullYear()&&m===t.getMonth()&&k+1===t.getDate()?'t':''}">${k+1}</span>`).join('')}
+ b.onclick=e=>{const c=e.target.closest('[data-c]');if(c){d.setMonth(d.getMonth()+ +c.dataset.c);r()}};r()};
+BUILD.clock=(w,b)=>{let sw={run:0,t0:0,acc:0},tm={run:0,end:0,left:0},tab='sw';
+ b.innerHTML=`<div class="pad"><div class="seg"><button data-tab="sw" class="on">Stopwatch</button><button data-tab="tm">Timer</button></div><div class="big2">00:00.0</div><div class="bar" style="justify-content:center;border:0"><label class="tmin" hidden>Minutes <input type="number" min="1" max="999" value="5" style="width:64px" class="search"></label><button class="pri" data-c="go">Start</button><button data-c="rs">Reset</button></div></div>`;
+ const f=ms=>{ms=Math.max(0,ms);const s=Math.floor(ms/1000),m=Math.floor(s/60);return String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'.'+Math.floor(ms%1000/100)};
+ const beep=()=>{try{const a=new AudioContext(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=880;o.start();setTimeout(()=>o.stop(),500)}catch(e){}};
+ const upd=()=>{const big=$('.big2',b);if(tab==='sw'){big.textContent=f(sw.acc+(sw.run?Date.now()-sw.t0:0))}else{if(tm.run){tm.left=tm.end-Date.now();if(tm.left<=0){tm.run=0;tm.left=0;beep();big.textContent='Time is up';$('[data-c=go]',b).textContent='Start';return}}big.textContent=f(tm.left)}
+  $('[data-c=go]',b).textContent=(tab==='sw'?sw.run:tm.run)?'Pause':'Start'};
+ const iv=setInterval(upd,100);w.api.close=()=>clearInterval(iv);
+ b.onclick=e=>{const t=e.target.closest('[data-tab]'),c=e.target.closest('[data-c]');
+  if(t){tab=t.dataset.tab;$$('[data-tab]',b).forEach(x=>x.classList.toggle('on',x===t));$('.tmin',b).hidden=tab==='sw';if(tab==='tm'&&!tm.run)tm.left=$('.tmin input',b).value*60000;upd()}
+  if(c){if(tab==='sw'){if(c.dataset.c==='go'){sw.run?sw.acc+=Date.now()-sw.t0:sw.t0=Date.now();sw.run=!sw.run}else sw={run:0,t0:0,acc:0}}
+   else{if(c.dataset.c==='go'){if(tm.run){tm.run=0}else{if(tm.left<=0)tm.left=$('.tmin input',b).value*60000;tm.end=Date.now()+tm.left;tm.run=1}}else{tm.run=0;tm.left=$('.tmin input',b).value*60000}}upd()}}};
+BUILD.tm=(w,b)=>{b.innerHTML='<div class="tmh"></div><table><thead><tr><th>Name</th><th>CPU</th><th>Memory</th><th></th></tr></thead><tbody></tbody></table>';const mem={};
+ const upd=()=>{const ws=Object.values(W);let cpu=0;$('tbody',b).innerHTML=ws.map(x=>{const c=(Math.random()*(x.k==='paint'?9:3)).toFixed(1);cpu+=+c;mem[x.id]=(mem[x.id]||40+Math.random()*160)+(Math.random()-.5)*2;
+  return `<tr><td>${ic(APPS[x.k].i,16)} ${APPS[x.k].n}</td><td>${c}%</td><td>${mem[x.id].toFixed(0)} MB</td><td><button data-id="${x.id}" class="pri" style="padding:3px 10px;border-radius:7px">End task</button></td></tr>`}).join('');
+  $('.tmh',b).textContent=`CPU ${Math.min(100,Math.round(4+cpu))}% · Memory ${(2.1+ws.length*.15).toFixed(1)} GB of 16 GB · ${ws.length} apps`};
+ upd();const iv=setInterval(upd,1000);w.api.close=()=>clearInterval(iv);b.onpointerdown=e=>{const x=e.target.closest('[data-id]');if(x)close(x.dataset.id)}};
+BUILD.set=(w,b)=>{const accs=['#3a6df0','#7c5cf0','#19b5a5','#e5484d','#e08a1e'];
+ const draw=()=>{b.innerHTML=`<div class="pad"><div class="sec" style="margin-top:0">Accent colour</div><div class="sw">${accs.map(c=>`<button data-acc="${c}" class="${c===CFG.acc?'on':''}" style="background:${c}" aria-label="Accent ${c}"></button>`).join('')}</div>
+ <div class="sec">Theme</div><div class="seg">${['system','light','dark'].map(t=>`<button data-th="${t}" class="${CFG.theme===t?'on':''}">${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</div>
+ <div class="sec">Wallpaper</div><div class="seg">${['Aurora','Lagoon','Meadow','Dusk'].map((t,i)=>`<button data-wp="${i}" class="${CFG.wp===i?'on':''}">${t}</button>`).join('')}</div>
+ <div class="sec">About</div><div class="row"><span>Device</span><span>Windows 12 concept</span></div><div class="row"><span>Storage</span><span>Saved in this browser</span></div>
+ <div style="margin-top:16px"><button data-reset="1" class="seg" style="padding:7px 14px;border-radius:9px;background:var(--hover)">Reset files and settings</button></div></div>`};
+ draw();b.onclick=e=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.acc)CFG.acc=t.dataset.acc;else if(t.dataset.th)CFG.theme=t.dataset.th;else if(t.dataset.wp)CFG.wp=+t.dataset.wp;
+  else if(t.dataset.reset){try{localStorage.removeItem('w12')}catch(x){}location.reload();return}else return;apply();save();draw()}};
+BUILD.assist=(w,b)=>{b.innerHTML='<div class="chat"><div class="msgs"><div class="m">Hi! Try: "open paint", "dark mode", "note buy milk", "what time is it" or "calculate 12*8".</div></div><input class="search" placeholder="Ask Assist" aria-label="Ask Assist"></div>';
+ const box=$('.msgs',b),inp=$('input',b),add=(x,c='')=>{const d=document.createElement('div');d.className='m '+c;d.textContent=x;box.appendChild(d);box.scrollTop=1e6};
+ inp.onkeydown=e=>{if(e.key!=='Enter'||!inp.value.trim())return;const x=inp.value.trim(),t=x.toLowerCase();inp.value='';add(x,'me');let r,m,a;
+  if(m=x.match(/^(?:note|remember|create (?:a )?note)[: ]+(.+)/i)){r='Saved as "'+put(['Documents'],'Note.txt',{t:'f',v:m[1]})+'" in Documents.'}
+  else if(m=t.match(/^(?:calculate|calc|what is|=)\s*([\d+\-*/().\s]+)$/))r=m[1]+' = '+evalx(m[1]);
+  else if(/\bdark\b/.test(t)){CFG.theme='dark';apply();save();r='Dark mode is on.'}else if(/\blight\b/.test(t)){CFG.theme='light';apply();save();r='Light mode is on.'}
+  else if(/\btime\b/.test(t))r=new Date().toLocaleTimeString();else if(/\bdate\b|\bday\b|\btoday\b/.test(t))r=new Date().toLocaleDateString([],{dateStyle:'full'});
+  else if(/\block\b/.test(t)){setTimeout(lock,300);r='Locking.'}
+  else if(a=findApp(t)){if(a!=='assist')setTimeout(()=>open(a),300);r='Opening '+APPS[a].n+'.'}
+  else r='I can open apps, switch dark or light mode, save a note, do sums, and tell you the time.';setTimeout(()=>add(r),300)};
+ w.api.focus=()=>inp.focus()};
+/* ---------- boot ---------- */
+
+</script>
+<script>
+/* ================= v3 addon ================= */
+var BATp=87,BATc=false;
+Object.assign(I,{
+edge:'<path d="M27 17.5c0-6.6-4.5-12-11.2-12C9 5.5 4.5 10.6 4.5 16.2c0 5.8 4.6 10.3 10.4 10.3 3.6 0 6.6-1.6 8.5-4.2-3.2 2-8 .8-9-2.8H27z" fill="#1fa0e8"/><path d="M9 14c1.5-4 6-5.8 10-3.6 2.8 1.6 3.8 4 3.8 6.6H12.5" fill="none" stroke="#7ee0b8" stroke-width="2.4" stroke-linecap="round"/>',
+chrome:'<circle cx="16" cy="16" r="13" fill="#fbbc04"/><path d="M16 16L4.74 9.5A13 13 0 0 1 27.26 9.5Z" fill="#ea4335"/><path d="M16 16L16 29A13 13 0 0 1 4.74 9.5Z" fill="#34a853"/><circle cx="16" cy="16" r="6.6" fill="#fff"/><circle cx="16" cy="16" r="5" fill="#4285f4"/>',
+vscode:'<path d="M22.5 3.5l5 2.4v20.2l-5 2.4L9.5 18l-4.6 3.5L3 20.4V11.6l1.9-1.1L9.5 14z" fill="#2b8be6"/><path d="M22.5 9.5v13l-8.7-6.5z" fill="#fff" opacity=".92"/>',
+media:'<circle cx="16" cy="16" r="13" fill="#8b5cf6"/><path d="M13 10.5v11l9-5.5z" fill="#fff"/>',
+camera:'<rect x="3" y="8" width="26" height="18" rx="4" fill="#4a5470"/><path d="M11 8l2-3h6l2 3z" fill="#4a5470"/><circle cx="16" cy="17" r="6" fill="#9fd0ff"/><circle cx="16" cy="17" r="3" fill="#2a3350"/>',
+shield:'<path d="M16 3l11 4v8c0 7-5 12-11 14C10 27 5 22 5 15V7z" fill="#2ea3f2"/><path d="M11 16l4 4 7-8" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+bag:'<path d="M7 11h18l-1.5 16h-15z" fill="#3a6df0"/><path d="M12 11V9a4 4 0 0 1 8 0v2" fill="none" stroke="#3a6df0" stroke-width="2.2"/><rect x="12" y="16" width="3.4" height="3.4" fill="#f2a65a"/><rect x="16.6" y="16" width="3.4" height="3.4" fill="#7cf0a8"/><rect x="12" y="20.4" width="3.4" height="3.4" fill="#e5484d"/><rect x="16.6" y="20.4" width="3.4" height="3.4" fill="#fff"/>',
+tview:'<rect x="4" y="7" width="24" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="8" y="11" width="16" height="10" rx="1.5" fill="currentColor" opacity=".35"/>'});
+Object.assign(APPS,{
+ chrome:{n:'Chrome',i:'chrome',w:840,h:500,store:1},code:{n:'VS Code',i:'vscode',w:880,h:520,store:1},
+ media:{n:'Media Player',i:'media',w:620,h:420,store:1},camera:{n:'Camera',i:'camera',w:480,h:400},
+ sec:{n:'Windows Security',i:'shield',w:660,h:450},store:{n:'Store',i:'bag',w:620,h:440}});
+Object.assign(APPS.browser,{n:'Edge',i:'edge',w:840,h:500});Object.assign(APPS.set,{w:800,h:540});
+Object.assign(ALIAS,{chrome:'chrome',google:'chrome',code:'code',vscode:'code','vs code':'code',youtube:'media',media:'media',video:'media',camera:'camera',security:'sec',defender:'sec',store:'store',update:'set'});
+/* ---------- helpers ---------- */
+const gp=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+const spv=(o,p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((a,x)=>a[x],o)[l]=v};
+const fext=n=>(n.includes('.')?n.split('.').pop():'').toLowerCase();
+const online=()=>!ST.sys.air&&!!ST.sys.wifi.on&&navigator.onLine;
+const isInst=k=>(!APPS[k].store||ST.sys.inst.includes(k))&&(!APPS[k].min||ST.sys.upd.build>=APPS[k].min);
+const av=(u,s)=>`<div class="av" style="background:${u.color};${s?`width:${s}px;height:${s}px;font-size:${Math.round(s*.42)}px`:''}">${esc((u.name||'?').trim().slice(0,1).toUpperCase())}</div>`;
+const sizeOf=n=>n.t==='d'?Object.values(n.c).reduce((a,x)=>a+sizeOf(x),0):(n.v||'').length;
+const fmt=b=>b>1048576?(b/1048576).toFixed(1)+' MB':b>1024?(b/1024).toFixed(1)+' KB':b+' B';
+const link=u=>{const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()};
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+/* ---------- database (IndexedDB) ---------- */
+const DB={db:null,
+ open(){return new Promise(r=>{try{const q=indexedDB.open('w12db',1);q.onupgradeneeded=()=>q.result.createObjectStore('kv');q.onsuccess=()=>{DB.db=q.result;r()};q.onerror=()=>r()}catch(e){r()}})},
+ get(k){return new Promise(r=>{if(!DB.db){try{return r(JSON.parse(localStorage.getItem('w12v3')))}catch(e){return r(null)}}try{const q=DB.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}catch(e){r(null)}})},
+ set(k,v){return new Promise(r=>{if(!DB.db){try{localStorage.setItem('w12v3',JSON.stringify(v))}catch(e){}return r()}try{const t=DB.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>r();t.onerror=()=>r()}catch(e){r()}})}};
+const CD={theme:'system',acc:'#3a6df0',wp:0,bg:null,align:'center',night:0,bright:100,vol:60,mute:0,notif:1,focus:0,saver:0,text:100,hc:0,rm:0,trans:1,h24:0,tz:'',lang:'en-IN',cam:1,mic:1,loc:1,codeDef:1};
+const defSys=()=>({wifi:{on:1,net:null,saved:[]},bt:{on:1},web:[{id:'wiki',n:'Wikipedia',u:'https://en.wikipedia.org/wiki/Main_Page',c:'#3a6df0'},{id:'maps',n:'Maps',u:'https://www.openstreetmap.org/export/embed.html?bbox=68%2C6%2C98%2C36&layer=mapnik',c:'#19b5a5'},{id:'gmail',n:'Gmail',u:'https://mail.google.com',c:'#e5484d'},{id:'gh',n:'GitHub',u:'https://github.com',c:'#7c5cf0'}],air:0,pc:'DESKTOP-W12',inst:['chrome','code'],
+ upd:{build:0,hist:[],pending:[],state:'idle',paused:0,last:null,lastInstall:0,prog:0},sec:{rt:1,fw:[1,1,1],ss:1,scans:[]}});
+let ST={users:[],sys:defSys()},USER=null,LU=null,LM='pw',fails=0,until=0,NOTES=[],qv='main',_st;
+CFG=Object.assign({},CD);
+save=function(){clearTimeout(_st);_st=setTimeout(()=>DB.set('state',ST),250)};
+function mkFS(){const f=D();['Desktop','Documents','Downloads','Pictures','Music'].forEach(n=>f.c[n]=D());
+ const d=f.c.Documents.c;d['Welcome.txt']={t:'f',v:'Welcome to the Windows 12 concept!\n\nFiles are stored in this browser\'s database (IndexedDB).\nTry Settings, Chrome, VS Code and Windows Update.'};
+ d.Projects=D();d.Projects.c['hello.js']={t:'f',v:"// Open this in VS Code and press Run\nconsole.log('Hello from Windows 12!');\nconsole.log([1,2,3].map(n=>n*n));"};
+ d.Projects.c['index.html']={t:'f',v:'<h1>Hello</h1>\n<p>Edit me in VS Code and press Run.</p>\n<style>body{font-family:sans-serif;padding:16px}</style>'};return f}
+async function hash(s,salt){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=0;for(const c of salt+s)h=(h*31+c.charCodeAt(0))|0;return'x'+h}}
+async function mkUser(name,pw,pin,face){const salt=Math.random().toString(36).slice(2),cols=['#3a6df0','#7c5cf0','#19b5a5','#e5484d','#e08a1e'];
+ return{id:Date.now(),name,color:cols[ST.users.length%5],salt,pw:pw?await hash(pw,salt):null,pin:pin?await hash(pin,salt):null,face:face||null,fs:mkFS(),bin:[],cfg:Object.assign({},CD)}}
+/* ---------- apply / clock / notify ---------- */
+apply=function(){const c=CFG,b=document.body;root.style.setProperty('--accent',c.acc);c.theme==='system'?root.removeAttribute('data-theme'):root.dataset.theme=c.theme;
+ const wl=$('#wall');if(c.bg){wl.style.background='center/cover url("'+c.bg+'")';wl.style.filter=''}else{wl.style.background='';wl.style.filter='hue-rotate('+[0,70,160,250][c.wp||0]+'deg)'}
+ b.classList.toggle('left',c.align==='left');b.classList.toggle('hc',!!c.hc);b.classList.toggle('rm',!!(c.rm||c.saver));b.classList.toggle('nt',!c.trans);b.style.fontSize=(14*c.text/100)+'px';
+ $('#dim').style.opacity=(1-c.bright/100)*.75;$('#night').style.display=c.night?'block':'none'};
+tick=function(){const d=new Date(),o=CFG.tz?{timeZone:CFG.tz}:{},t=d.toLocaleTimeString([],{...o,hour:'2-digit',minute:'2-digit',hour12:!CFG.h24}),
+ ds=d.toLocaleDateString([],{...o,day:'numeric',month:'short',year:'numeric'}),wd=d.toLocaleDateString([],{...o,weekday:'long'});
+ $('#ct').textContent=t;$('#wt').textContent=t;$('#lt').textContent=t;$('#cd').textContent=ds;$('#wd').textContent=wd;$('#ld').textContent=wd+', '+d.toLocaleDateString([],{...o,day:'numeric',month:'long'})};
+function notify(t,m,fn){NOTES.unshift({t,m});NOTES.length=Math.min(NOTES.length,6);qsRender();if(!CFG.notif||CFG.focus)return;
+ const d=document.createElement('div');d.className='toast glass';d.innerHTML=`<b>${esc(t)}</b><div style="color:var(--ink2);font-size:13px">${esc(m||'')}</div>`;
+ d.onclick=()=>{d.remove();fn&&fn()};$('#toasts').appendChild(d);setTimeout(()=>d.remove(),6500)}
+dlg=function(t,v,cb,type){const o=document.createElement('div');o.className='ov';o.innerHTML=`<div class="dlg"><b>${esc(t)}</b><input class="search" type="${type||'text'}" value="${esc(v)}"><div class="r"><button class="pri">OK</button><button>Cancel</button></div></div>`;
+ document.body.appendChild(o);const i=$('input',o);i.focus();i.select();const done=ok=>{o.remove();ok&&cb(i.value)};
+ $('.pri',o).onclick=()=>done(1);$$('button',o)[1].onclick=()=>done(0);o.onkeydown=e=>{if(e.key==='Enter')done(1);if(e.key==='Escape')done(0)}};
+/* ---------- icons: tray ---------- */
+const wifiIc=(l,c,s=18,off)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 9a14 14 0 0 1 19 0" opacity="${l>=3?1:.28}"/><path d="M5.5 12.5a9.5 9.5 0 0 1 13 0" opacity="${l>=2?1:.28}"/><path d="M8.7 16a5 5 0 0 1 6.6 0" opacity="${l>=1?1:.28}"/><circle cx="12" cy="19.2" r="1.3" fill="${c}" stroke="none"/>${off?'<path d="M3 3l18 18"/>':''}</svg>`;
+const volIc=v=>`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/>${v>0?'<path d="M16.5 8.5a5 5 0 0 1 0 7"/>':'<path d="M16 9l5 6M21 9l-5 6"/>'}</svg>`;
+const battIc=p=>`<svg viewBox="0 0 28 24" width="21" height="18" aria-hidden="true"><rect x="2" y="7" width="21" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="24" y="10" width="2.4" height="4" rx="1" fill="currentColor"/><rect x="4" y="9" width="${p*.17}" height="6" rx="1" fill="#30a46c"/></svg>`;
+function tray(){const el=$('#tray');if(!el)return;const on=online();el.innerHTML=wifiIc(on?3:0,on?'var(--accent)':'var(--ink2)',18,!on)+volIc(CFG.mute?0:CFG.vol)+battIc(BATp)}
+/* ---------- Wi-Fi + quick settings ---------- */
+const NETS=[['Home 5G',3,1],['Jio Fiber 5G',3,1],['CafeNet',2,0],['Office-WiFi',2,1],['Guest',1,0]];
+function connectNet(n){const s=ST.sys,net=NETS.find(x=>x[0]===n);
+ const done=()=>{s.wifi.net=n;if(!s.wifi.saved.includes(n))s.wifi.saved.push(n);save();tray();qsRender();settingsRender();notify('Wi-Fi','Connected to '+n)};
+ if(s.wifi.net===n){s.wifi.net=null;save();tray();qsRender();settingsRender();return}
+ if(net[2]&&!s.wifi.saved.includes(n))dlg('Enter the network security key for '+n,'',v=>v.length>=8?done():notify('Wi-Fi','Incorrect key (use at least 8 characters).'),'password');else done()}
+function settingsRender(){Object.values(W).filter(w=>w.k==='set').forEach(w=>w.api.render&&w.api.render())}
+function qsRender(){const q=$('#qs'),s=ST.sys,air=s.air;if(!q)return;
+ if(qv==='wifi'){q.innerHTML=`<div class="row" style="margin-bottom:8px"><span style="display:flex;gap:8px;align-items:center"><button class="sb" data-q="back" aria-label="Back">←</button><b>Wi-Fi</b></span><button class="tgl" role="switch" aria-checked="${!!s.wifi.on}" data-q="wifi" aria-label="Wi-Fi"></button></div>`+
+  (s.wifi.on&&!air?NETS.map(([n,l,sec])=>{const c=s.wifi.net===n;return`<button class="rec" data-net="${esc(n)}" style="${c?'background:var(--hover)':''}">${wifiIc(l,c?'var(--accent)':'currentColor',22)}<span>${esc(n)}<small style="display:block;color:var(--ink2)">${c?'Connected, secured':sec?'Secured':'Open'}</small></span></button>`}).join(''):'<p style="color:var(--ink2)">Wi-Fi is off.</p>')+'<div style="margin-top:8px"><button class="sb" data-q="netset">More Wi-Fi settings</button></div>';return}
+ const off=air||!s.wifi.on,T=[['wifi','Wi-Fi',off?'Off':(s.wifi.net||'Not connected'),!off,1],['bt','Bluetooth',air||!s.bt.on?'Off':Object.values(s.bt.dev).filter(Boolean).length+' devices',!air&&s.bt.on],['air','Airplane mode',air?'On':'Off',air],['saver','Battery saver',CFG.saver?'On':'Off',CFG.saver],['dark','Dark mode',isDark()?'On':'Off',isDark()],['night','Night light',CFG.night?'On':'Off',CFG.night],['focus','Focus',CFG.focus?'On':'Off',CFG.focus],['sec','Security','Open',0]];
+ q.innerHTML=`<div class="tog">${T.map(t=>`<div style="position:relative"><button data-q="${t[0]}" aria-pressed="${!!t[3]}" style="width:100%">${t[1]}<br><small>${esc(t[2])}</small></button>${t[4]?'<button data-q="wifilist" aria-label="Wi-Fi networks" style="position:absolute;right:6px;top:8px;padding:2px 8px;border-radius:6px;background:none;width:auto">›</button>':''}</div>`).join('')}</div>
+ <div class="sec" style="margin-top:0">Volume</div><input type="range" data-q="vol" value="${CFG.vol}" aria-label="Volume"><div class="sec">Brightness</div><input type="range" min="30" max="100" data-q="bright" value="${CFG.bright}" aria-label="Brightness">
+ <div class="sec">Notifications</div>${NOTES.length?NOTES.slice(0,3).map(n=>`<div style="padding:4px 2px;font-size:13px"><b>${esc(n.t)}</b><div style="color:var(--ink2)">${esc(n.m||'')}</div></div>`).join('')+'<button class="sb" data-q="clear">Clear all</button>':'<div style="color:var(--ink2);font-size:13px">No new notifications</div>'}
+ <div class="foot"><span>${battIc(BATp)}</span><button data-q="settings">Settings ⚙</button></div>`}
+$('#qs').onclick=e=>{e.stopPropagation();const t=e.target.closest('[data-q],[data-net]');if(!t)return;if(t.dataset.net)return connectNet(t.dataset.net);const s=ST.sys,k=t.dataset.q;
+ if(k==='wifi'){s.wifi.on=s.wifi.on?0:1;if(s.wifi.on&&!s.wifi.net)s.wifi.net=s.wifi.saved[0]||null}else if(k==='bt')s.bt.on=s.bt.on?0:1;else if(k==='air')s.air=s.air?0:1;
+ else if(k==='saver')CFG.saver=CFG.saver?0:1;else if(k==='dark')CFG.theme=isDark()?'light':'dark';else if(k==='night')CFG.night=CFG.night?0:1;else if(k==='focus')CFG.focus=CFG.focus?0:1;
+ else if(k==='wifilist')qv='wifi';else if(k==='back')qv='main';else if(k==='clear')NOTES.length=0;else if(k==='netset'){hideMenus();return open('set',{page:'net'})}
+ else if(k==='settings'){hideMenus();return open('set')}else if(k==='sec'){hideMenus();return open('sec')}else return;
+ apply();save();tray();qsRender();settingsRender()};
+$('#qs').oninput=e=>{const k=e.target.dataset.q;if(k==='vol'||k==='bright'){CFG[k]=+e.target.value;apply();tray();save()}};
+$('#qbtn').onclick=()=>{const o=!$('#qs').classList.contains('open');hideMenus();if(o){qv='main';qsRender();$('#qs').classList.add('open')}};
+/* ---------- face (demo-grade) ---------- */
+function sample(v){const c=document.createElement('canvas');c.width=c.height=20;const g=c.getContext('2d'),w=v.videoWidth,h=v.videoHeight,m=Math.min(w,h);g.drawImage(v,(w-m)/2,(h-m)/2,m,m,0,0,20,20);
+ const d=g.getImageData(0,0,20,20).data,a=[];for(let i=0;i<d.length;i+=4)a.push(.3*d[i]+.59*d[i+1]+.11*d[i+2]);const mu=a.reduce((x,y)=>x+y)/a.length,z=a.map(x=>x-mu),n=Math.hypot(...z)||1;return z.map(x=>x/n)}
+const sim=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
+async function faceScan(host){const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}}),v=document.createElement('video');v.srcObject=s;v.muted=true;v.playsInline=true;host&&host.replaceChildren(v);
+ try{await v.play();await wait(800);const fr=[];for(let i=0;i<5;i++){fr.push(sample(v));await wait(200)}
+  const a=fr[0].map((_,i)=>fr.reduce((t,f)=>t+f[i],0)/fr.length),n=Math.hypot(...a)||1;return a.map(x=>x/n)}finally{s.getTracks().forEach(t=>t.stop());host&&host.replaceChildren()}}
+async function faceFlow(title){const o=document.createElement('div');o.className='ov';o.style.zIndex=99800;o.innerHTML=`<div class="dlg" style="text-align:center"><b>${esc(title)}</b><div class="fvh" style="height:150px;display:grid;place-items:center">Starting camera…</div></div>`;document.body.appendChild(o);
+ try{return await faceScan($('.fvh',o))}finally{o.remove()}}
+/* ---------- lock screen, sign-in, setup ---------- */
+lock=function(){hideMenus();$('#tv').hidden=true;$('#lock').classList.remove('up');$('#login').hidden=true;$('#lclk').hidden=false;$('#lock').focus()};
+function showLogin(){if(!$('#login').hidden||!ST.users.length)return;$('#lclk').hidden=true;$('#login').hidden=false;if(!LU||!ST.users.includes(LU))LU=ST.users.includes(USER)?USER:ST.users[0];lrender()}
+function lrender(){const u=LU;$('#lusers').innerHTML=ST.users.length>1?ST.users.map((x,i)=>`<button class="lbtn" data-u="${i}" style="${x===u?'outline:2px solid #fff':''}">${esc(x.name)}</button>`).join(''):'';
+ $('#lav').innerHTML=av(u,110);$('#lname').textContent=u.name;$('#lmsg').textContent='';$('#fv').replaceChildren();
+ const m=[u.pw&&['pw','Password'],u.pin&&['pin','PIN'],u.face&&['face','Face']].filter(Boolean);if(!m.some(x=>x[0]===LM))LM=m.length?m[0][0]:'none';
+ const inp=$('#lpw');$('.lrow').hidden=LM==='face';inp.hidden=LM==='none';inp.type='password';inp.placeholder=LM==='pin'?'PIN':'Password';inp.inputMode=LM==='pin'?'numeric':'text';inp.value='';$('#lgo').textContent=LM==='none'?'Sign in':'→';
+ $('#lmodes').innerHTML=(m.length>1?m.map(x=>`<button class="lbtn" data-m="${x[0]}" style="${x[0]===LM?'outline:2px solid #fff':''}">${x[1]}</button>`).join(''):'')+(LM==='face'?'<button class="lbtn" data-m="face">Scan again</button>':'');
+ if(LM==='face')faceLogin();else setTimeout(()=>inp.focus(),30)}
+async function tryLogin(){const u=LU,m=$('#lmsg');if(Date.now()<until){m.textContent='Too many attempts. Try again in '+Math.ceil((until-Date.now())/1000)+' s.';return}
+ if(LM==='none'||LM==='face')return LM==='none'&&signIn(u);
+ if(await hash($('#lpw').value,u.salt)===(LM==='pw'?u.pw:u.pin))return signIn(u);
+ $('#lpw').value='';fails++;if(fails>=5){until=Date.now()+30000;fails=0;m.textContent='Too many attempts. Locked for 30 seconds.'}else m.textContent=(LM==='pin'?'The PIN':'The password')+' is incorrect. Try again.'}
+async function faceLogin(){const m=$('#lmsg'),u=LU;m.textContent='Looking for you…';try{const v=await faceScan($('#fv'));if(LU!==u||LM!=='face')return;sim(v,u.face)>.8?signIn(u):m.textContent='Face not recognised. Use your password or PIN.'}catch(e){m.textContent='Camera unavailable. Use your password or PIN.'}}
+$('#lock').onclick=()=>{if($('#login').hidden)showLogin()};
+document.addEventListener('keydown',e=>{if($('#lock').classList.contains('up')||!$('#oobe').hidden||!$('#login').hidden)return;showLogin()});
+$('#login').onclick=e=>{e.stopPropagation();const u=e.target.closest('[data-u]'),m=e.target.closest('[data-m]');
+ if(u){LU=ST.users[+u.dataset.u];lrender()}else if(m){LM=m.dataset.m;lrender()}else if(e.target.id==='lgo')tryLogin();
+ else if(e.target.id==='lback'){$('#login').hidden=true;$('#lclk').hidden=false}
+ else if(e.target.id==='lforgot')dlg('Erase this account and its files? Type ERASE to confirm.','',v=>{if(v!=='ERASE')return;ST.users.splice(ST.users.indexOf(LU),1);if(USER===LU)USER=null;LU=null;DB.set('state',ST);$('#login').hidden=true;$('#lclk').hidden=false;if(!ST.users.length)oobe()})};
+$('#lpw').onkeydown=e=>{if(e.key==='Enter')tryLogin()};
+function signIn(u){if(USER&&USER!==u)Object.keys(W).forEach(close);USER=u;FS=u.fs;BIN=u.bin;CFG=Object.assign({},CD,u.cfg);u.cfg=CFG;fails=0;
+ apply();desk();tasks();tray();qsRender();$('#lock').classList.add('up');$('#login').hidden=true;$('#lclk').hidden=false;save();
+ notify('Welcome, '+u.name,online()?'Connected to '+ST.sys.wifi.net:'No internet connection');
+ if(window._upn){window._upn=0;setTimeout(()=>notify('Update installed','Now running '+verStr()),1200)}
+ clearTimeout(window._ut);window._ut=setTimeout(autoUpdate,25000)}
+function oobe(){const o=$('#oobe');o.hidden=false;o.innerHTML=`<div class="oobe-card glass"><h2>Let's set up your PC</h2><p style="color:var(--ink2);margin:0">Create the account you'll sign in with. Everything is stored in this browser's database.</p>
+ <label>Your name<input id="on" class="search" autocomplete="off"></label><label>Password (optional)<input id="op" type="password" class="search"></label><label>PIN (optional, 4–8 digits)<input id="opin" class="search" inputmode="numeric"></label>
+ <label class="chk"><input type="checkbox" id="of"> Also set up face sign-in (uses your camera)</label><div id="omsg" style="color:#e5484d;min-height:18px"></div><button class="sb pri" id="ogo">Create account</button></div>`;
+ $('#ogo').onclick=async()=>{const n=$('#on').value.trim(),pw=$('#op').value,pin=$('#opin').value,m=$('#omsg');
+  if(!n)return m.textContent='Please enter your name.';if(pin&&!/^\d{4,8}$/.test(pin))return m.textContent='PIN must be 4 to 8 digits.';
+  let face=null;if($('#of').checked){if(!pw&&!pin)return m.textContent='Face sign-in needs a password or PIN as backup.';try{face=await faceFlow('Look at the camera')}catch(e){m.textContent='Camera unavailable. Account created without face sign-in.'}}
+  const u=await mkUser(n.slice(0,20),pw,pin,face);ST.users.push(u);await DB.set('state',ST);o.hidden=true;signIn(u)}};
+/* ---------- Windows Update ---------- */
+const U=()=>ST.sys.upd;
+const verStr=()=>'Windows 12 concept · Version 26H2 (OS Build 28000.'+(100+U().build*7)+')';
+const mkUpds=b=>{const k=5090100+b*17,f=({1:'Feature update 26H2: Refreshed look',2:'Feature update 26H2: Sticky Notes',3:'Feature update 26H2: Midnight theme'})[b]||'Cumulative security update';return[{t:f+' (KB'+k+')',z:b<4?612:96,y:b<4?'Feature':'Quality'},{t:'Security Intelligence Update for Windows Security (KB2267602)',z:3,y:'Security'},{t:'Windows Malicious Software Removal Tool (KB890830)',z:19,y:'Security'}]};
+function autoUpdate(){const u=U();if(u.paused>Date.now()||u.pending.length||u.state!=='idle'||!online())return;if(u.build>0&&Date.now()-u.lastInstall<60000)return;
+ u.pending=mkUpds(u.build+1);u.state='available';save();notify('Updates available','Open Windows Update to install them.',()=>open('set',{page:'update'}));settingsRender()}
+function updCheck(){const u=U();if(u.paused>Date.now())return;u.state='checking';u.err=null;settingsRender();
+ setTimeout(()=>{u.last=Date.now();if(!online()){u.state='idle';u.err='You are offline. Connect to Wi-Fi to check for updates.'}
+  else if(u.pending.length)u.state='available';else if(u.build===0||Date.now()-u.lastInstall>60000){u.pending=mkUpds(u.build+1);u.state='available';notify('Updates available','Download and install them from Windows Update.')}else u.state='uptodate';save();settingsRender()},1800)}
+function updDl(){const u=U();if(!online()){u.err='You are offline. Connect to Wi-Fi first.';return settingsRender()}u.state='installing';u.prog=0;u.err=null;settingsRender();
+ const iv=setInterval(()=>{u.prog=Math.min(100,u.prog+4+Math.random()*7);const e=$('#upb'),l=$('#upl');if(e)e.style.width=u.prog+'%';if(l)l.textContent=Math.floor(u.prog)+'%';
+  if(u.prog>=100){clearInterval(iv);u.state='restart';save();notify('Restart required','Restart to finish installing updates.');settingsRender()}},250)}
+function finishUpd(){const u=U(),d=new Date().toLocaleDateString();u.pending.forEach(x=>u.hist.unshift({t:x.t,d,s:'Successfully installed'}));u.hist.length=Math.min(u.hist.length,12);u.build++;u.pending=[];u.state='idle';u.lastInstall=Date.now();u.last=Date.now();window._upn=1;DB.set('state',ST)}
+function updRestart(){Object.keys(W).forEach(close);const o=$('#off');o.style.display='grid';$('#sp').style.display='block';let p=0;const t=$('#offt'),iv=setInterval(()=>{p+=3+Math.random()*5;if(p>=100){clearInterval(iv);finishUpd();o.style.display='none';lock();return}t.textContent='Working on updates '+Math.floor(p)+'% — don\'t turn off your PC'},120)}
+const _pw=power;power=function(re){hideMenus();if(re&&U().state==='restart')return updRestart();_pw(re)};
+/* ---------- overrides: open / files / start search ---------- */
+const _op=open;open=function(k,o){if(APPS[k]&&!isInst(k)){notify('Not installed',APPS[k].n+' is available in the Store.');return _op('store',{app:k})}
+ const r=_op(k,o);if(k==='set'&&o&&o.page&&r&&r.api.go)r.api.go(o.page);return r};
+const _oi=openItem;openItem=function(p,n){const v=node(p).c[n];
+ if(v&&v.t==='f'&&/\.(js|html|css|json|py|ts|md|csv)$/i.test(n)&&CFG.codeDef&&isInst('code')){const ex=Object.values(W).find(w=>w.k==='code');if(ex){ex.api.openFile(p,n);show(ex.id)}else open('code',{path:p,name:n});return}_oi(p,n)};
+const SPG=[['system','System','display sound notifications power battery storage about recovery brightness night light volume'],['bt','Bluetooth & devices','bluetooth mouse headphones keyboard'],['net','Network & internet','wi-fi wifi airplane ethernet'],['person','Personalisation','background theme colours accent taskbar dark mode wallpaper'],['apps','Apps','installed apps uninstall default'],['acct','Accounts','sign-in password pin face windows hello users'],['time','Time & language','clock timezone 24-hour language region'],['access','Accessibility','text size high contrast motion'],['priv','Privacy & security','camera microphone location'],['update','Windows Update','updates security patch restart history']];
+const SIC={system:'🖥',bt:'ᛒ',net:'📶',person:'🎨',apps:'▦',acct:'👤',time:'🕒',access:'♿',priv:'🔒',update:'⟳'};
+function renderPins(){$('#pins').innerHTML=Object.keys(APPS).filter(isInst).map(k=>`<button class="app" data-app="${k}">${ic(APPS[k].i,34)}${APPS[k].n}</button>`).join('')}
+filterApps=function(v){v=v.toLowerCase().trim();$$('#pins .app').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(v));const r=$('#sres');if(!r)return;if(!v||!USER){r.innerHTML='';return}
+ const hits=[];(function walk(n,p){for(const[k,x]of Object.entries(n.c)){if(k.toLowerCase().includes(v)&&hits.length<5)hits.push([p,k,x]);if(x.t==='d')walk(x,p.concat(k))}})(FS,[]);
+ const sp=SPG.filter(g=>(g[1]+' '+g[2]).toLowerCase().includes(v)).slice(0,3);
+ r.innerHTML=(hits.length||sp.length?'<div class="sec">Results</div>':'')+sp.map(g=>`<button class="rec" data-set="${g[0]}">${ic('gear',24)}<span>${g[1]}<small style="display:block;color:var(--ink2)">Settings</small></span></button>`).join('')+
+  hits.map(([p,k,x])=>`<button class="rec" data-fp="${esc(p.join('/'))}" data-fn="${esc(k)}">${ic(kind(k,x),24)}<span>${esc(k)}<small style="display:block;color:var(--ink2)">${esc(['This PC',...p].join(' › '))}</small></span></button>`).join('')};
+$('#start').addEventListener('click',e=>{const s=e.target.closest('[data-set]'),f=e.target.closest('[data-fp]');if(s){hideMenus();open('set',{page:s.dataset.set})}if(f){hideMenus();openItem(f.dataset.fp?f.dataset.fp.split('/'):[],f.dataset.fn)}});
+$('#start').insertAdjacentHTML('beforeend','');$('#pins').insertAdjacentHTML('afterend','<div id="sres"></div>');
+/* task view */
+$('#tvbtn').innerHTML=`<svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true">${I.tview}</svg>`;
+$('#tvbtn').onclick=()=>{const tv=$('#tv');if(!tv.hidden){tv.hidden=true;return}hideMenus();const ws=Object.values(W);
+ tv.innerHTML=ws.length?ws.map(w=>`<button class="tvc glass" data-id="${w.id}">${ic(APPS[w.k].i,40)}<b>${esc($('.tb b',w.el).textContent)}</b></button>`).join(''):'<p style="color:#fff">No open windows</p>';tv.hidden=false};
+$('#tv').onclick=e=>{const c=e.target.closest('[data-id]');$('#tv').hidden=true;c&&W[c.dataset.id]&&show(c.dataset.id)};
+/* ---------- settings app ---------- */
+const tg=(src,k)=>{const v=gp(src==='s'?ST.sys:CFG,k);return`<button class="tgl" role="switch" aria-checked="${!!v}" aria-label="${k}" data-${src==='s'?'s':'k'}="${k}"></button>`};
+const sl=(k,min,max)=>`<input type="range" min="${min}" max="${max}" value="${CFG[k]}" data-k="${k}" aria-label="${k}" style="width:150px">`;
+const sel=(k,opts,src)=>`<select data-${src==='s'?'s':'k'}="${k}">${opts.map(o=>`<option value="${o[0]}" ${String(gp(src==='s'?ST.sys:CFG,k))===String(o[0])?'selected':''}>${o[1]}</option>`).join('')}</select>`;
+const srow=(t,d,c)=>`<div class="srow"><div><b>${t}</b>${d?`<small>${d}</small>`:''}</div><div class="ctl">${c||''}</div></div>`;
+const btn=(a,l,cls,extra)=>`<button class="sb ${cls||''}" data-act="${a}" ${extra||''}>${l}</button>`;
+const P={
+system:()=>{const used=sizeOf(FS),parts=Object.entries(FS.c).map(([k,v])=>srow(esc(k),'',fmt(sizeOf(v)))).join('');
+ return'<h2>System</h2>'+srow('Brightness','',sl('bright',30,100))+srow('Night light','Warmer colours',tg('k','night'))+srow('Text size','',sel('text',[[100,'100%'],[115,'115%'],[130,'130%']]))+
+ srow('Volume','',sl('vol',0,100))+srow('Mute','',tg('k','mute'))+srow('Notifications','Show alerts from apps and system',tg('k','notif'))+srow('Focus','Silence toast notifications',tg('k','focus'))+
+ srow('Battery',navigator.getBattery?BATp+'%'+(BATc?' · charging':''):'Not reported by this browser','')+srow('Battery saver','Turns off animations',tg('k','saver'))+
+ `<div class="srow"><div style="width:100%"><b>Storage</b><small>${fmt(used)} used of 256 GB · database: IndexedDB (w12db)</small><div class="pbar"><i style="width:${Math.max(1,used/2.56e8*100)}%"></i></div></div></div>`+parts+srow('Recycle Bin',BIN.length+' items',btn('emptybin','Empty'))+
+ '<h3>About</h3>'+srow('Device name',esc(ST.sys.pc),btn('rename','Rename'))+srow('Edition','Windows 12 concept Home','')+srow('Version',verStr(),'')+srow('Recovery','Erase this account\'s files and settings',btn('reset','Reset this PC'))},
+bt:()=>'<h2>Bluetooth & devices</h2>'+srow('Bluetooth','',tg('s','bt.on'))+Object.entries(ST.sys.bt.dev).map(([n,c])=>srow(esc(n),c&&ST.sys.bt.on&&!ST.sys.air?'Connected':'Not connected',btn('bt',c?'Disconnect':'Connect','',`data-n="${esc(n)}"`))).join('')+srow('Camera','Used by Camera and face sign-in',tg('k','cam')),
+net:()=>{const s=ST.sys;return'<h2>Network & internet</h2>'+`<div class="srow"><div style="display:flex;gap:12px;align-items:center">${wifiIc(online()?3:0,online()?'var(--accent)':'var(--ink2)',32,!online())}<div><b>${online()?esc(s.wifi.net):'Not connected'}</b><small>${online()?'Connected, secured':'No internet'}</small></div></div></div>`+
+ srow('Wi-Fi','',tg('s','wifi.on'))+srow('Airplane mode','Turns off Wi-Fi and Bluetooth',tg('s','air'))+(s.wifi.on&&!s.air?'<h3>Available networks</h3>'+NETS.map(([n,l,sec])=>{const c=s.wifi.net===n,sv=s.wifi.saved.includes(n);
+  return`<div class="srow"><div style="display:flex;gap:12px;align-items:center">${wifiIc(l,c?'var(--accent)':'currentColor',24)}<div><b>${esc(n)}</b><small>${c?'Connected':sec?(sv?'Saved, secured':'Secured'):'Open'}</small></div></div><div class="ctl">${btn('wifi',c?'Disconnect':'Connect',c?'':'pri',`data-n="${esc(n)}"`)}${sv?btn('forget','Forget','',`data-n="${esc(n)}"`):''}</div></div>`}).join(''):'')+srow('Ethernet','Not connected','')},
+person:()=>{const accs=['#3a6df0','#7c5cf0','#19b5a5','#e5484d','#e08a1e'];return'<h2>Personalisation</h2>'+srow('Theme','',sel('theme',[['system','Use system setting'],['light','Light'],['dark','Dark']]))+
+ srow('Accent colour','',accs.map(c=>btn('accent','',' ',`data-v="${c}" style="background:${c};width:26px;height:26px;border-radius:50%;padding:0;${c===CFG.acc?'outline:2px solid var(--ink)':''}" aria-label="${c}"`)).join('')+`<input type="color" value="${CFG.acc}" data-k="acc" aria-label="Custom colour">`)+
+ srow('Background',CFG.bg?'Custom picture':'Preset',['Aurora','Lagoon','Meadow','Dusk'].map((n,i)=>btn('wp',n,!CFG.bg&&CFG.wp===i?'pri':'',`data-v="${i}"`)).join(''))+
+ srow('Choose a picture','Use an image from your computer',`<label class="sb pri" style="cursor:pointer">Browse<input type="file" accept="image/*" data-bg hidden></label>`+(CFG.bg?btn('bgclear','Remove'):''))+
+ srow('Taskbar alignment','',sel('align',[['center','Center'],['left','Left']]))+srow('Transparency effects','Glass blur on windows and menus',tg('k','trans'))},
+apps:()=>'<h2>Apps</h2>'+Object.keys(APPS).filter(isInst).map(k=>srow(`<span style="display:flex;gap:10px;align-items:center">${ic(APPS[k].i,26)}${APPS[k].n}</span>`,APPS[k].store?'Installed from the Store':'Built in',btn('openapp','Open','',`data-k="${k}"`)+(APPS[k].store?btn('uninstall','Uninstall','',`data-k="${k}"`):''))).join('')+
+ srow('Open code files with','.js .html .css .json and more',sel('codeDef',[[1,'VS Code'],[0,'Notepad']]))+srow('Get more apps','',btn('openapp','Open Store','pri','data-k="store"')),
+acct:()=>{const u=USER;return'<h2>Accounts</h2>'+`<div class="srow"><div style="display:flex;gap:14px;align-items:center">${av(u,56)}<div><b style="font-size:17px">${esc(u.name)}</b><small>Local account</small></div></div><div class="ctl">${btn('name','Change name')}</div></div>`+
+ srow('Profile colour','',['#3a6df0','#7c5cf0','#19b5a5','#e5484d','#e08a1e'].map(c=>btn('color','',' ',`data-c="${c}" style="background:${c};width:26px;height:26px;border-radius:50%;padding:0" aria-label="${c}"`)).join(''))+'<h3>Sign-in options</h3>'+
+ srow('Password',u.pw?'Set':'Not set',btn('pw-set',u.pw?'Change':'Add')+(u.pw?btn('pw-rm','Remove'):''))+srow('PIN',u.pin?'Set':'Not set',btn('pin-set',u.pin?'Change':'Add')+(u.pin?btn('pin-rm','Remove'):''))+
+ srow('Face recognition',u.face?'Set up. This is a demo that compares camera images, so it is not secure: keep a password.':'Uses your camera. Demo-grade only, needs a password or PIN as backup.',u.face?btn('face-set','Re-scan')+btn('face-rm','Remove'):btn('face-set','Set up','pri'))+
+ '<h3>Other users</h3>'+ST.users.map((x,i)=>srow(`<span style="display:flex;gap:10px;align-items:center">${av(x,28)}${esc(x.name)}</span>`,x===u?'Signed in':'',x===u?'':btn('user-rm','Remove','',`data-i="${i}"`))).join('')+srow('Add account','',btn('user-add','Add','pri'))+srow('Lock this PC','',btn('lock','Lock now'))},
+time:()=>'<h2>Time & language</h2>'+srow('Use 24-hour clock','',tg('k','h24'))+srow('Time zone','',sel('tz',[['','This device'],['Asia/Kolkata','India (IST)'],['UTC','UTC'],['America/New_York','Eastern (US)'],['Europe/London','London'],['Asia/Tokyo','Tokyo']]))+
+ srow('Display language','Preview only',sel('lang',[['en-IN','English (India)'],['en-US','English (US)'],['hi-IN','हिन्दी']])),
+access:()=>'<h2>Accessibility</h2>'+srow('Text size','',sel('text',[[100,'100%'],[115,'115%'],[130,'130%']]))+srow('High contrast','Black background, yellow secondary text',tg('k','hc'))+srow('Reduce motion','Turn off animations',tg('k','rm'))+srow('Transparency effects','',tg('k','trans')),
+priv:()=>'<h2>Privacy & security</h2>'+srow('Camera access','Camera app and face sign-in',tg('k','cam'))+srow('Microphone access','',tg('k','mic'))+srow('Location services','',tg('k','loc'))+srow('Windows Security','Virus protection, firewall and more',btn('sec','Open','pri')),
+update:()=>{const u=U(),st={idle:'You\'re up to date',uptodate:'You\'re up to date',checking:'Checking for updates…',available:'Updates available',installing:'Downloading and installing… <span id="upl">'+Math.floor(u.prog||0)+'%</span>',restart:'Restart required'}[u.state]||'';
+ return'<h2>Windows Update</h2>'+`<div class="srow"><div style="width:100%"><b style="font-size:17px">${st}</b><small>${u.err?esc(u.err):u.last?'Last checked: '+new Date(u.last).toLocaleString():'Never checked'}</small>${u.state==='installing'?`<div class="pbar"><i id="upb" style="width:${u.prog||0}%"></i></div>`:''}</div><div class="ctl">`+
+ (u.state==='available'?btn('upd-dl','Download & install','pri'):u.state==='restart'?btn('upd-restart','Restart now','pri'):u.state==='checking'||u.state==='installing'?'':btn('upd-check','Check for updates','pri'))+'</div></div>'+
+ u.pending.map(x=>srow(esc(x.t),x.y+' update · '+x.z+' MB',u.state==='restart'?'Pending restart':'')).join('')+
+ srow('Pause updates',u.paused>Date.now()?'Paused until '+new Date(u.paused).toLocaleDateString():'Delay updates for 1 week',btn('upd-pause',u.paused>Date.now()?'Resume':'Pause 1 week'))+srow('Windows version',verStr(),'')+
+ '<h3>Update history</h3>'+(u.hist.length?u.hist.map(x=>srow(esc(x.t),x.d+' · '+x.s,'')).join(''):'<p style="color:var(--ink2)">Nothing installed yet. Updates also arrive on their own a little after you sign in.</p>')}};
+const A={
+ wp:d=>{CFG.wp=+d.v;CFG.bg=null},bgclear:()=>{CFG.bg=null},accent:d=>{CFG.acc=d.v},color:d=>{USER.color=d.c},wifi:d=>connectNet(d.n),
+ forget:d=>{const s=ST.sys.wifi;s.saved=s.saved.filter(x=>x!==d.n);if(s.net===d.n)s.net=null},
+ bt:d=>{ST.sys.bt.dev[d.n]=ST.sys.bt.dev[d.n]?0:1;notify('Bluetooth',d.n+(ST.sys.bt.dev[d.n]?' connected':' disconnected'))},
+ emptybin:()=>{BIN.length=0},
+ rename:()=>dlg('Device name',ST.sys.pc,v=>{v=v.trim().replace(/[^\w-]/g,'');if(v){ST.sys.pc=v.slice(0,15).toUpperCase();save();settingsRender()}}),
+ name:()=>dlg('Your name',USER.name,v=>{v=v.trim();if(v){USER.name=v.slice(0,20);save();settingsRender()}}),
+ 'pw-set':()=>dlg('New password','',async v=>{if(!v)return;USER.pw=await hash(v,USER.salt);save();settingsRender();notify('Password updated')},'password'),
+ 'pw-rm':()=>{if(USER.face&&!USER.pin)return notify('Keep a backup','Face sign-in needs a password or PIN.');USER.pw=null},
+ 'pin-set':()=>dlg('New PIN (4–8 digits)','',async v=>{if(!/^\d{4,8}$/.test(v))return notify('Invalid PIN','Use 4 to 8 digits.');USER.pin=await hash(v,USER.salt);save();settingsRender();notify('PIN updated')},'password'),
+ 'pin-rm':()=>{if(USER.face&&!USER.pw)return notify('Keep a backup','Face sign-in needs a password or PIN.');USER.pin=null},
+ 'face-set':()=>{if(!CFG.cam)return notify('Camera is off','Turn it on in Privacy & security.');if(!USER.pw&&!USER.pin)return notify('Add a password or PIN first','Face sign-in needs a backup.');
+  faceFlow('Look at the camera').then(v=>{USER.face=v;save();settingsRender();notify('Face sign-in ready','Demo-grade only. Keep your password.')}).catch(()=>notify('Camera unavailable','Allow camera access in your browser and try again.'))},
+ 'face-rm':()=>{USER.face=null},
+ 'user-add':()=>dlg('Name for the new account','',async v=>{v=v.trim();if(!v)return;ST.users.push(await mkUser(v.slice(0,20)));save();settingsRender()}),
+ 'user-rm':d=>{const u=ST.users[+d.i];if(u===USER)return;ST.users.splice(+d.i,1)},lock:()=>lock(),sec:()=>open('sec'),
+ reset:()=>dlg('Type RESET to erase this account\'s files and settings','',v=>{if(v==='RESET'){FS=USER.fs=mkFS();BIN=USER.bin=[];CFG=Object.assign({},CD);USER.cfg=CFG;apply();desk();save();settingsRender()}}),
+ 'upd-check':updCheck,'upd-dl':updDl,'upd-restart':()=>power(1),'upd-pause':()=>{const u=U();u.paused=u.paused>Date.now()?0:Date.now()+7*864e5},
+ uninstall:d=>{const i=ST.sys.inst.indexOf(d.k);if(i>=0)ST.sys.inst.splice(i,1);const j=PIN.indexOf(d.k);if(j>=0)PIN.splice(j,1);Object.values(W).filter(x=>x.k===d.k).forEach(x=>close(x.id));renderPins();tasks()},
+ openapp:d=>open(d.k)};
+function bgFile(f){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),k=Math.min(1,1280/im.width);c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);CFG.bg=c.toDataURL('image/jpeg',.8);apply();save();settingsRender()};im.src=r.result};r.readAsDataURL(f)}
+BUILD.set=(w,b,o)=>{let pg=o.page||'system',q='';
+ const draw=()=>{const pgs=SPG.filter(g=>!q||(g[1]+' '+g[2]).toLowerCase().includes(q)),keep=($('.spage',b)||{}).scrollTop||0;
+  b.innerHTML=`<div class="sset"><nav class="snav"><input class="search" placeholder="Find a setting" value="${esc(q)}" aria-label="Find a setting" style="margin-bottom:8px">${pgs.map(g=>`<button data-pg="${g[0]}" class="${g[0]===pg?'on':''}" aria-label="${g[1]}">${SIC[g[0]]}<span>${g[1]}</span></button>`).join('')}</nav><div class="spage">${(P[pg]||P.system)()}</div></div>`;
+  $('.spage',b).scrollTop=keep;if(q){const i=$('.snav input',b);i.focus();i.setSelectionRange(q.length,q.length)}};
+ const post=()=>{apply();save();tray();qsRender();draw()};
+ b.onclick=e=>{const n=e.target.closest('[data-pg]');if(n){pg=n.dataset.pg;draw();return}const t=e.target.closest('.tgl');
+  if(t){const s=t.dataset.s!=null,key=s?t.dataset.s:t.dataset.k,ob=s?ST.sys:CFG;spv(ob,key,gp(ob,key)?0:1);return post()}
+  const a=e.target.closest('[data-act]');if(a&&A[a.dataset.act]){A[a.dataset.act](a.dataset);post()}};
+ b.onchange=e=>{const t=e.target;if(t.tagName==='SELECT'){const s=t.dataset.s!=null,key=s?t.dataset.s:t.dataset.k;spv(s?ST.sys:CFG,key,t.value===''||isNaN(t.value)?t.value:+t.value);post()}else if(t.dataset.bg!=null&&t.files[0])bgFile(t.files[0])};
+ b.oninput=e=>{const t=e.target;if(t.matches('.snav input')){q=t.value.toLowerCase();draw();return}
+  if(t.type==='range'&&t.dataset.k){CFG[t.dataset.k]=+t.value;apply();tray();save()}else if(t.type==='color'&&t.dataset.k){CFG[t.dataset.k]=t.value;apply();save()}};
+ w.api.render=draw;w.api.go=id=>{pg=id;draw()};draw()};
+/* ---------- Windows Security ---------- */
+BUILD.sec=(w,b)=>{let pg='home',sc=null;const S=()=>ST.sys.sec;
+ const nav=[['home','Home'],['virus','Virus & threat protection'],['fw','Firewall & network'],['acct','Account protection'],['dev','Device health']];
+ const draw=()=>{const s=S(),u=U();let h='';
+  if(pg==='home')h='<h2>Security at a glance</h2>'+srow('Virus & threat protection',s.rt?'No action needed':'Real-time protection is off',btn('go','Open','',`data-p="virus"`))+srow('Firewall & network protection',s.fw.every(Boolean)?'No action needed':'A firewall is off',btn('go','Open','',`data-p="fw"`))+
+   srow('Account protection',USER.pw||USER.pin?(USER.face?'Password/PIN and face sign-in':'Password or PIN set'):'No sign-in protection',btn('go','Open','',`data-p="acct"`))+srow('Device health',u.pending.length?'Updates are waiting':'No action needed',btn('go','Open','',`data-p="dev"`));
+  else if(pg==='virus')h='<h2>Virus & threat protection</h2>'+srow('Real-time protection','Finds and stops malware as it appears',`<button class="tgl" role="switch" aria-checked="${!!s.rt}" data-t="rt"></button>`)+
+   `<div class="srow"><div style="width:100%"><b>${sc?'Scanning… <span id="scn">'+sc.files+'</span> files':'Current threats'}</b><small>${sc?'':s.scans.length?'Last scan: '+esc(s.scans[0].d)+' · '+s.scans[0].f+' files · 0 threats':'No scans yet'}</small>${sc?`<div class="pbar"><i id="scb" style="width:${sc.p}%"></i></div>`:''}</div><div class="ctl">${sc?'':btn('scan','Quick scan','pri','data-k="quick"')+btn('scan','Full scan','','data-k="full"')}</div></div>`+
+   '<h3>Scan history</h3>'+(s.scans.length?s.scans.map(x=>srow(esc(x.k)+' scan',esc(x.d)+' · '+x.f+' files scanned','No threats')).join(''):'<p style="color:var(--ink2)">Nothing here yet.</p>');
+  else if(pg==='fw')h='<h2>Firewall & network protection</h2>'+['Domain network','Private network','Public network'].map((n,i)=>srow(n,s.fw[i]?'Firewall is on':'Firewall is off',`<button class="tgl" role="switch" aria-checked="${!!s.fw[i]}" data-t="fw${i}"></button>`)).join('')+srow('Network','Connected to '+(online()?esc(ST.sys.wifi.net):'no network'),'')+srow('SmartScreen','Warn about unrecognised apps and sites',`<button class="tgl" role="switch" aria-checked="${!!s.ss}" data-t="ss"></button>`);
+  else if(pg==='acct')h='<h2>Account protection</h2>'+srow('Password',USER.pw?'Set':'Not set','')+srow('PIN',USER.pin?'Set':'Not set','')+srow('Face recognition',USER.face?'Set up (demo-grade)':'Not set up','')+srow('Manage sign-in','',btn('acc','Open Settings','pri'));
+  else h='<h2>Device health</h2>'+srow('Windows Update',u.pending.length?'Updates waiting: '+u.pending.length:'Up to date',btn('upd','Open','pri'))+srow('Storage',fmt(sizeOf(FS))+' used of 256 GB','')+srow('Version',verStr(),'');
+  b.innerHTML=`<div class="sset"><nav class="snav" style="width:170px">${nav.map(n=>`<button data-pg="${n[0]}" class="${n[0]===pg?'on':''}">${n[1]}</button>`).join('')}</nav><div class="spage">${h}</div></div>`};
+ b.onclick=e=>{const n=e.target.closest('[data-pg]'),t=e.target.closest('.tgl'),a=e.target.closest('[data-act]');if(n){pg=n.dataset.pg;draw();return}
+  if(t){const k=t.dataset.t,s=S();k==='rt'?s.rt=s.rt?0:1:k==='ss'?s.ss=s.ss?0:1:s.fw[+k[2]]=s.fw[+k[2]]?0:1;if(!s.rt)notify('Windows Security','Real-time protection is off.');save();draw();return}
+  if(!a)return;const x=a.dataset.act;if(x==='go'){pg=a.dataset.p;draw()}else if(x==='acc')open('set',{page:'acct'});else if(x==='upd')open('set',{page:'update'});
+  else if(x==='scan'){const full=a.dataset.k==='full';sc={p:0,files:0,k:full?'Full':'Quick'};draw();const iv=setInterval(()=>{if(!W[w.id])return clearInterval(iv);sc.p=Math.min(100,sc.p+(full?2:6)+Math.random()*3);sc.files+=Math.floor((full?900:300)+Math.random()*300);
+   const e1=$('#scb',b),e2=$('#scn',b);e1&&(e1.style.width=sc.p+'%');e2&&(e2.textContent=sc.files);if(sc.p>=100){clearInterval(iv);S().scans.unshift({k:sc.k,d:new Date().toLocaleString(),f:sc.files});S().scans.length=Math.min(S().scans.length,6);sc=null;save();notify('Windows Security','Scan finished. No threats found.');draw()}},300)}};
+ draw()};
+/* ---------- Store ---------- */
+BUILD.store=(w,b,o)=>{const apps=['chrome','code','media'],ds={chrome:'Tabbed browser with downloads and bookmarks',code:'Code editor with file tree, tabs and Run',media:'Play video and audio files from your computer'},busy={};
+ const draw=()=>{b.innerHTML='<div class="pad"><h2 style="margin:0 0 4px">Store</h2><p style="color:var(--ink2);margin:0 0 12px">Get apps for your PC.</p>'+apps.map(k=>`<div class="srow">${ic(APPS[k].i,40)}<div style="flex:1"><b>${APPS[k].n}</b><small>${ds[k]}</small>${busy[k]!=null?`<div class="pbar"><i style="width:${busy[k]}%"></i></div>`:''}</div><div class="ctl">${isInst(k)?`<button class="sb pri" data-open="${k}">Open</button>`:busy[k]!=null?'Installing…':`<button class="sb pri" data-get="${k}">Get</button>`}</div></div>`).join('')+'</div>'};
+ b.onclick=e=>{const g=e.target.closest('[data-get]'),op=e.target.closest('[data-open]');if(op)return open(op.dataset.open);if(!g)return;const k=g.dataset.get;
+  if(!online())return notify('Store','Connect to the internet to download apps.');busy[k]=0;draw();const iv=setInterval(()=>{if(!W[w.id])return clearInterval(iv);busy[k]+=10+Math.random()*15;
+   if(busy[k]>=100){clearInterval(iv);delete busy[k];ST.sys.inst.push(k);if(k!=='media'&&!PIN.includes(k))PIN.push(k);renderPins();tasks();save();notify(APPS[k].n+' installed','Find it in Start.')}draw()},250)};draw()};
+/* ---------- Edge / Chrome ---------- */
+const BMK=[['Gmail','https://mail.google.com'],['YouTube','https://www.youtube.com'],['Maps','https://www.openstreetmap.org'],['GitHub','https://github.com'],['Wikipedia','https://wikipedia.org'],['News','https://bbc.com/news']];
+const SAMPLES=['notes.txt','data.csv','hello.js','page.html','picture.png'];
+function mkSample(n){if(n==='picture.png'){const c=document.createElement('canvas');c.width=640;c.height=360;const g=c.getContext('2d'),gr=g.createLinearGradient(0,0,640,360);gr.addColorStop(0,'#3a6df0');gr.addColorStop(1,'#f2a65a');g.fillStyle=gr;g.fillRect(0,0,640,360);g.fillStyle='#fff';g.font='40px sans-serif';g.fillText('Windows 12 concept',150,190);return{t:'i',v:c.toDataURL('image/png')}}
+ return{t:'f',v:{'notes.txt':'Downloaded in the Windows 12 concept.\n','data.csv':'name,score\nAsha,91\nRavi,84\nMeera,97\n','hello.js':"console.log('Hello from a downloaded file!');\n",'page.html':'<h1>Saved page</h1><p>Open me in VS Code and press Run.</p>'}[n]}}
+function importFiles(list){[...list].forEach(f=>{if(f.size>3e6)return notify('Import failed',f.name+' is larger than 3 MB.');const img=f.type.startsWith('image/'),txt=f.type.startsWith('text/')||/\.(txt|md|js|json|csv|html|css|py|xml|ts)$/i.test(f.name);
+ if(!img&&!txt)return notify('Import skipped',f.name+': only text and image files are supported.');const r=new FileReader();r.onload=()=>{put(['Downloads'],f.name,{t:img?'i':'f',v:r.result});notify('Imported',f.name+' saved to Downloads')};img?r.readAsDataURL(f):r.readAsText(f)})}
+function mkBrowser(kind){return(w,b)=>{let tabs=[{u:'ntp'}],cur=0,shelf=[];const eng=kind==='chrome'?'https://www.google.com/search?q=':'https://www.bing.com/search?q=';
+ b.innerHTML=`<div class="tabs"></div><div class="bar"><button data-c="back" aria-label="Back">←</button><button data-c="reload" aria-label="Reload">⟳</button><input class="search omni" style="flex:1;min-width:140px" placeholder="Search or type a URL" aria-label="Address"><button data-c="go" class="pri">Go</button><button data-c="prof" aria-label="Profile">${USER?av(USER,22):''}</button></div><div class="bk">${BMK.map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join('')}</div><div class="pgc"></div><div class="shelf"></div>`;
+ const ttl=t=>t.u==='ntp'?'New tab':t.u==='down'?'Downloads':t.u==='samples'?'Sample files':(()=>{try{return new URL(t.url).hostname}catch(e){return t.url}})();
+ function render(){const t=tabs[cur],pg=$('.pgc',b);$('.tabs',b).innerHTML=tabs.map((x,i)=>`<div class="tab ${i===cur?'on':''}" data-t="${i}"><span>${esc(ttl(x))}</span><button data-x="${i}" aria-label="Close tab">✕</button></div>`).join('')+'<button class="tab" data-c="nt" aria-label="New tab">＋</button>';$('.omni',b).value=t.u==='web'?t.url:'';
+  if(t.u==='ntp')pg.innerHTML=`<div class="bw"><h1 style="font-weight:300;margin:10px 0 18px">${kind==='chrome'?'Chrome':'Edge'} · New tab</h1><input class="search" id="ntq" style="max-width:480px" placeholder="Search the web" aria-label="Search"><div class="tiles">${BMK.map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join('')}<a href="#" data-go="chrome://downloads">Downloads</a><a href="#" data-go="chrome://samples">Sample files</a></div></div>`;
+  else if(t.u==='down'){const e=Object.entries(node(['Downloads']).c);pg.innerHTML=`<div class="pad"><h2 style="margin:0 0 10px">Downloads</h2><div style="display:flex;gap:8px;margin-bottom:10px"><label class="sb pri" style="cursor:pointer">Import files from this computer<input type="file" multiple hidden></label><button class="sb" data-c="folder">Open folder</button></div>`+(e.length?e.map(([n,v])=>srow(`<span style="display:flex;gap:10px;align-items:center">${ic(kind2(n,v),24)}${esc(n)}</span>`,fmt(sizeOf(v)),'')).join(''):'<p style="color:var(--ink2)">No downloads yet.</p>')+'</div>'}
+  else if(t.u==='samples')pg.innerHTML=`<div class="pad"><h2 style="margin:0 0 6px">Sample files</h2><p style="color:var(--ink2)">Pages from the real web can't load inside this simulated desktop, so these built-in files show how downloads work. They save to your Downloads folder.</p>`+SAMPLES.map(n=>srow(esc(n),'',`<button class="sb pri" data-dl="${n}">Download</button>`)).join('')+'</div>';
+  else pg.innerHTML=online()?`<div class="bw"><h3>Opening in a new browser tab</h3><p><a href="${esc(t.url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(t.url)}</a></p><p style="color:var(--ink2)">Real sites can't be displayed inside this page. For Gmail or YouTube, sign in on the real site in that tab.</p></div>`:
+   `<div class="bw"><h2>No internet</h2><p style="color:var(--ink2)">ERR_INTERNET_DISCONNECTED. Turn on Wi-Fi and connect to a network.</p><button class="sb pri" data-c="wifi">Open network settings</button></div>`}
+ const kind2=(n,v)=>v.t==='d'?'folder':v.t==='i'?'photo':'note';
+ function drawShelf(){$('.shelf',b).innerHTML=shelf.slice(-4).map(i=>`<div class="dli"><b>${esc(i.n)}</b><div style="color:var(--ink2)">${i.p>=100?'Done':Math.floor(i.p)+'%'}</div><div class="pbar"><i style="width:${i.p}%"></i></div></div>`).join('')}
+ function dl(n){if(!online())return notify('Download failed','No internet connection. Connect to Wi-Fi first.');const it={n,p:0};shelf.push(it);const iv=setInterval(()=>{it.p+=12+Math.random()*18;if(it.p>=100){it.p=100;clearInterval(iv);put(['Downloads'],n,mkSample(n));notify('Download complete',n+' saved to Downloads')}drawShelf()},250);drawShelf()}
+ function go(v){v=v.trim();if(!v)return;if(/^(chrome|edge|about):\/\/downloads/i.test(v))tabs[cur]={u:'down'};else if(/^(chrome|edge|about):\/\/samples/i.test(v))tabs[cur]={u:'samples'};
+  else{const u=/^https?:\/\//i.test(v)?v:/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(v)?'https://'+v:eng+encodeURIComponent(v);tabs[cur]={u:'web',url:u};if(online())link(u)}render()}
+ b.onclick=e=>{const x=e.target.closest('[data-x]');if(x){tabs.splice(+x.dataset.x,1);if(!tabs.length)tabs=[{u:'ntp'}];cur=Math.min(cur,tabs.length-1);render();return}
+  const t=e.target.closest('[data-t]');if(t){cur=+t.dataset.t;render();return}const g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.dataset.go);return}
+  const d=e.target.closest('[data-dl]');if(d)return dl(d.dataset.dl);const c=e.target.closest('[data-c]');if(!c)return;const a=c.dataset.c;
+  if(a==='go')go($('.omni',b).value);else if(a==='nt'){tabs.push({u:'ntp'});cur=tabs.length-1;render()}else if(a==='reload')render();else if(a==='back'){tabs[cur]={u:'ntp'};render()}
+  else if(a==='folder')open('explorer',{path:['Downloads']});else if(a==='wifi')open('set',{page:'net'});
+  else if(a==='prof')notify('Profile: '+(USER?USER.name:''),'Signing in to a Google account is not possible inside this page. Use the Gmail bookmark to sign in on the real site.')};
+ b.onkeydown=e=>{if(e.key==='Enter'&&e.target.matches('.omni,#ntq'))go(e.target.value)};
+ b.onchange=e=>{if(e.target.type==='file')importFiles(e.target.files)};
+ w.api.render=()=>{if(tabs[cur].u==='down')render()};render()}}
+BUILD.browser=mkBrowser('edge');BUILD.chrome=mkBrowser('chrome');
+/* ---------- VS Code ---------- */
+const KW=/^(?:const|let|var|function|return|if|else|for|while|class|import|from|export|new|this|async|await|try|catch|def|print|in|of|true|false|null|undefined|switch|case|break|continue|typeof|throw|default)$/;
+function hlt(t,e){const re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->|#[^\n]*)|("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)|(<\/?[A-Za-z][\w-]*)/g;let o='',i=0,m;
+ while(m=re.exec(t)){o+=esc(t.slice(i,m.index));i=re.lastIndex;const x=m[0];
+  if(m[1])o+=(x[0]==='#'&&e!=='py'&&e!=='sh')?esc(x):`<span class="c">${esc(x)}</span>`;else if(m[2])o+=`<span class="s">${esc(x)}</span>`;else if(m[3])o+=`<span class="n">${x}</span>`;else if(m[4])o+=KW.test(x)?`<span class="k">${x}</span>`:esc(x);else o+=`<span class="k">${esc(x)}</span>`}
+ return o+esc(t.slice(i))+'\n'}
+BUILD.code=(w,b,o)=>{let tabs=[],cur=-1,selDir=['Documents'];const exp=new Set(['Documents','Documents/Projects']);
+ b.innerHTML=`<div class="vs"><div class="vside"><div class="vh"><b>EXPLORER</b><button data-c="nf" title="New file" aria-label="New file">＋</button></div><div class="vtree"></div></div><div class="vmain"><div class="vtabs"></div><div class="ed"><div class="gut"></div><div class="edw"><pre class="hl" aria-hidden="true"></pre><textarea wrap="off" spellcheck="false" aria-label="Code editor"></textarea></div></div><div class="vpanel"><div class="vph"><b>OUTPUT</b><button data-c="run">▶ Run</button><button data-c="clr">Clear</button></div><div class="vout">Press Run to execute JavaScript, or preview HTML.</div></div></div></div><div class="status vst"></div>`;
+ const ta=$('textarea',b),hl=$('.hl',b),gut=$('.gut',b),out=$('.vout',b),st=$('.vst',b);
+ const tree=(n,p,d)=>Object.entries(n.c).sort((a,c)=>(c[1].t==='d')-(a[1].t==='d')||a[0].localeCompare(c[0])).map(([k,v])=>{const pp=p.concat(k).join('/');
+  if(v.t==='d')return`<div class="ti" style="padding-left:${8+d*12}px" data-d="${esc(pp)}">${exp.has(pp)?'▾':'▸'} ${esc(k)}</div>`+(exp.has(pp)?tree(v,p.concat(k),d+1):'');
+  return v.t==='i'?'':`<div class="ti ${cur>=0&&tabs[cur].key===pp?'on':''}" style="padding-left:${22+d*12}px" data-f="${esc(pp)}">${esc(k)}</div>`}).join('');
+ function paint(){const t=tabs[cur];ta.disabled=!t;if(!t){hl.innerHTML='';gut.textContent='';st.textContent='VS Code · no file open';return}
+  hl.innerHTML=hlt(ta.value,fext(t.n));gut.textContent=Array.from({length:ta.value.split('\n').length},(_,i)=>i+1).join('\n');pos()}
+ function pos(){const t=tabs[cur];if(!t)return;const s=ta.value.slice(0,ta.selectionStart).split('\n');st.textContent=`Ln ${s.length}, Col ${s[s.length-1].length+1}   Spaces: 2   UTF-8   ${({js:'JavaScript',html:'HTML',css:'CSS',json:'JSON',py:'Python',md:'Markdown'})[fext(t.n)]||'Plain text'}`}
+ function render(){$('.vtree',b).innerHTML=tree(FS,[],0);$('.vtabs',b).innerHTML=tabs.map((t,i)=>`<div class="vtab ${i===cur?'on':''}" data-t="${i}">${esc(t.n)}${t.dirty?' ●':''}<button data-x="${i}" aria-label="Close">✕</button></div>`).join('');const nt=cur>=0?tabs[cur].text:'';if(ta.value!==nt)ta.value=nt;paint()}
+ function openFile(p,n){const f=node(p.concat(n));if(!f||f.t!=='f')return;const key=p.concat(n).join('/');let i=tabs.findIndex(t=>t.key===key);if(i<0){tabs.push({key,p,n,text:f.v||'',dirty:0});i=tabs.length-1}cur=i;selDir=p;render()}
+ function saveF(){const t=tabs[cur];if(!t)return;const f=node(t.p.concat(t.n));if(f){f.v=t.text;save()}t.dirty=0;render()}
+ function run(){const t=tabs[cur];if(!t)return;const e=fext(t.n);
+  if(e==='js'){const logs=[],f=a=>typeof a==='object'?(()=>{try{return JSON.stringify(a)}catch(x){return String(a)}})():String(a),c={log:(...a)=>logs.push(a.map(f).join(' ')),warn:(...a)=>logs.push('⚠ '+a.map(f).join(' ')),error:(...a)=>logs.push('✖ '+a.map(f).join(' '))};
+   try{new Function('console','window','document','indexedDB','localStorage','parent','top',t.text)(c)}catch(x){logs.push('✖ '+x)}out.textContent=logs.join('\n')||'(no output)'}
+  else if(e==='html'){out.innerHTML='<iframe sandbox="allow-scripts" title="Preview"></iframe>';$('iframe',out).srcdoc=t.text}else out.textContent='Running .'+e+' files is not supported here. JavaScript and HTML run in this concept.'}
+ ta.oninput=()=>{const t=tabs[cur];if(!t)return;t.text=ta.value;if(!t.dirty){t.dirty=1;render();ta.focus()}else paint()};
+ ta.onscroll=()=>{hl.scrollTop=ta.scrollTop;hl.scrollLeft=ta.scrollLeft;gut.scrollTop=ta.scrollTop};ta.onkeyup=ta.onclick=pos;
+ ta.onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();const s=ta.selectionStart;ta.setRangeText('  ',s,ta.selectionEnd,'end');ta.dispatchEvent(new Event('input'))}
+  else if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveF()}else if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();run()}};
+ b.onclick=e=>{const x=e.target.closest('[data-x]');if(x){e.stopPropagation();tabs.splice(+x.dataset.x,1);cur=Math.min(cur,tabs.length-1);render();return}
+  const t=e.target.closest('[data-t]'),d=e.target.closest('[data-d]'),f=e.target.closest('[data-f]'),c=e.target.closest('[data-c]');
+  if(t){cur=+t.dataset.t;render()}else if(d){const k=d.dataset.d;exp.has(k)?exp.delete(k):exp.add(k);selDir=k.split('/');render()}else if(f){const p=f.dataset.f.split('/'),n=p.pop();openFile(p,n)}
+  else if(c){const a=c.dataset.c;if(a==='run')run();else if(a==='clr')out.textContent='';else if(a==='nf')dlg('New file in '+selDir.join('/'),'untitled.js',v=>{v=v.trim();if(!v)return;const n=put(selDir,v,{t:'f',v:''});exp.add(selDir.join('/'));openFile(selDir,n)})}};
+ w.api.openFile=openFile;w.api.render=render;w.api.focus=()=>{ta.disabled||ta.focus()};
+ render();if(o.name)openFile(o.path,o.name);else{const p=['Documents','Projects'];node(p)&&node(p).c['hello.js']&&openFile(p,'hello.js')}};
+/* ---------- Media + Camera ---------- */
+BUILD.media=(w,b)=>{let items=[],cur=-1;b.innerHTML=`<div class="bar"><label class="sb pri" style="cursor:pointer">Open files<input type="file" accept="video/*,audio/*" multiple hidden></label><a class="sb" href="https://www.youtube.com" target="_blank" rel="noopener">Open YouTube in a new tab</a></div><div class="split"><div class="pv" style="background:#000"><video controls playsinline style="max-width:100%;max-height:100%"></video></div><nav class="side" style="width:170px;border-left:1px solid var(--line);border-right:0"></nav></div><div class="status">Play videos and music from your computer. YouTube itself can't play inside this page, so it opens in a real tab.</div>`;
+ const v=$('video',b),nav=$('.side',b),list=()=>nav.innerHTML=items.map((x,i)=>`<button data-i="${i}" class="${i===cur?'on':''}">${esc(x.n)}</button>`).join('')||'<small style="color:var(--ink2)">Playlist is empty</small>';list();
+ b.onchange=e=>{if(e.target.type!=='file')return;[...e.target.files].forEach(f=>items.push({n:f.name,u:URL.createObjectURL(f)}));if(cur<0&&items.length){cur=0;v.src=items[0].u;v.play().catch(()=>{})}list()};
+ nav.onclick=e=>{const x=e.target.closest('[data-i]');if(x){cur=+x.dataset.i;v.src=items[cur].u;v.play().catch(()=>{});list()}};w.api.close=()=>items.forEach(x=>URL.revokeObjectURL(x.u))};
+BUILD.camera=(w,b)=>{b.innerHTML='<div class="pv" style="background:#000"><video playsinline muted style="max-width:100%;max-height:100%;transform:scaleX(-1)"></video></div><div class="bar" style="justify-content:center"><button class="sb pri" data-c="snap">Take photo</button></div><div class="status"></div>';
+ const v=$('video',b),st=$('.status',b);let s;(async()=>{try{if(!CFG.cam)throw 0;s=await navigator.mediaDevices.getUserMedia({video:true});v.srcObject=s;await v.play();st.textContent='Camera ready'}catch(e){st.textContent=CFG.cam?'Camera unavailable. Check your browser permission.':'Camera access is off in Privacy & security.'}})();
+ b.onclick=e=>{if(!e.target.closest('[data-c]')||!v.videoWidth)return;const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);st.textContent='Saved '+put(['Pictures'],'Photo.jpg',{t:'i',v:c.toDataURL('image/jpeg',.8)})+' to Pictures'};
+ w.api.close=()=>s&&s.getTracks().forEach(t=>t.stop())};
+/* explorer: import button */
+const _ex=BUILD.explorer;BUILD.explorer=(w,b,o)=>{_ex(w,b,o);const l=document.createElement('label');l.className='sb';l.style.cursor='pointer';l.innerHTML='Import<input type="file" multiple hidden>';$('.bar',b).appendChild(l);l.querySelector('input').onchange=e=>importFiles(e.target.files)};
+/* ---------- boot ---------- */
+async function boot(){await DB.open();const s=await DB.get('state');
+ if(s&&s.users){ST=s;const d=defSys();ST.sys=Object.assign(d,ST.sys||{});ST.sys.upd=Object.assign(d.upd,ST.sys.upd);ST.sys.sec=Object.assign(d.sec,ST.sys.sec);ST.sys.wifi=Object.assign(d.wifi,ST.sys.wifi)}
+ const u=ST.sys.upd;if(u.state==='installing')u.state='available';if(u.state==='checking')u.state='idle';
+ PIN.splice(0,PIN.length,'explorer','browser','notepad','calc','paint','term','set',...['chrome','code'].filter(k=>ST.sys.inst.includes(k)));
+ renderPins();tasks();tray();qsRender();tick();setInterval(tick,15000);
+ if(ST.users.length){lock()}else oobe()}
+
+/* ================= v4 ================= */
+Object.assign(I,{
+yt:'<rect x="2" y="7" width="28" height="18" rx="6" fill="#e5484d"/><path d="M13 12v8l7-4z" fill="#fff"/>',
+sticky:'<path d="M5 5h22v16l-7 7H5z" fill="#ffd54a"/><path d="M20 28v-7h7z" fill="#e0b52b"/><path d="M9 11h14M9 15h14M9 19h7" stroke="#8a6d00" stroke-width="1.8" stroke-linecap="round"/>'});
+Object.assign(APPS,{youtube:{n:'YouTube',i:'yt',w:840,h:500},sticky:{n:'Sticky Notes',i:'sticky',w:340,h:420,min:2}});
+ALIAS.youtube='youtube';ALIAS.sticky='sticky';ALIAS['sticky notes']='sticky';
+/* ---------- real connection status ---------- */
+const NI=()=>{const c=navigator.connection||navigator.mozConnection||{};return{on:navigator.onLine,type:c.type,eff:c.effectiveType,down:c.downlink,rtt:c.rtt}};
+const netText=()=>{const n=NI();if(ST.sys.air)return'Airplane mode';if(!n.on)return'No internet';if(!ST.sys.wifi.on)return'Blocked for apps';
+ return(n.type==='wifi'?'Wi-Fi':n.type==='ethernet'?'Ethernet':n.type==='cellular'?'Mobile data':'Connected')+(n.eff?' · '+n.eff.toUpperCase():'')+(n.down?' · '+n.down+' Mbps':'')};
+let _lastOn=navigator.onLine;
+const nchg=()=>{const o=navigator.onLine;tray();qsRender();settingsRender();if(o!==_lastOn){_lastOn=o;notify('Network',o?'Back online ('+netText()+')':'You are offline')}};
+addEventListener('online',nchg);addEventListener('offline',nchg);if(navigator.connection&&navigator.connection.addEventListener)navigator.connection.addEventListener('change',nchg);
+/* ---------- real Bluetooth (Web Bluetooth) ---------- */
+const BTD=[];let BTAV=null;
+if(navigator.bluetooth&&navigator.bluetooth.getAvailability)navigator.bluetooth.getAvailability().then(v=>{BTAV=v;qsRender();settingsRender()}).catch(()=>{});
+const btReason=e=>e&&(e.name==='SecurityError'||e.name==='NotAllowedError')?'Blocked by the browser or by this page\'s permissions. Open the page directly in Chrome or Edge and allow Bluetooth.':(e&&e.message)||'Unknown error';
+async function btAdd(){const s=ST.sys;if(s.air||!s.bt.on)return notify('Bluetooth','Turn on Bluetooth first.');if(!navigator.bluetooth)return notify('Bluetooth','This browser has no Bluetooth support. Use Chrome or Edge.');
+ try{const d=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:['battery_service']});let r=BTD.find(x=>x.id===d.id);if(!r){r={id:d.id,name:d.name||'Unknown device',dev:d,batt:null,on:0};BTD.push(r);d.addEventListener('gattserverdisconnected',()=>{r.on=0;r.batt=null;tray();qsRender();settingsRender()})}await btConn(r)}
+ catch(e){if(e.name!=='NotFoundError')notify('Bluetooth',btReason(e))}}
+async function btConn(r){try{const sv=await r.dev.gatt.connect();r.on=1;try{const c=await(await sv.getPrimaryService('battery_service')).getCharacteristic('battery_level');r.batt=(await c.readValue()).getUint8(0)}catch(e){}notify('Bluetooth',r.name+' connected')}catch(e){r.on=0;notify('Bluetooth','Could not connect to '+r.name)}tray();qsRender();settingsRender()}
+function btDis(r){try{r.dev.gatt.connected&&r.dev.gatt.disconnect()}catch(e){}r.on=0;r.batt=null}
+const btCount=()=>BTD.filter(x=>x.on).length;
+function syncBt(){const s=ST.sys;if((s.air||!s.bt.on)&&BTD.some(x=>x.on)){BTD.forEach(btDis);tray();qsRender();settingsRender()}}
+/* real battery where the browser reports it */
+function batInit(){if(!navigator.getBattery)return;navigator.getBattery().then(b=>{const u=()=>{BATp=Math.round(b.level*100);BATc=b.charging;tray();qsRender();settingsRender()};u();b.addEventListener('levelchange',u);b.addEventListener('chargingchange',u)}).catch(()=>{})}
+const btIc=()=>'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg>';
+tray=function(){const el=$('#tray');if(!el)return;const on=online();el.innerHTML=(btCount()?btIc():'')+wifiIc(on?3:0,on?'var(--accent)':'var(--ink2)',18,!on)+volIc(CFG.mute?0:CFG.vol)+(navigator.getBattery?battIc(BATp):'')};
+qsRender=function(){const q=$('#qs'),s=ST.sys,air=s.air;if(!q)return;
+ if(qv==='wifi'){const n=NI();q.innerHTML=`<div class="row" style="margin-bottom:8px"><span style="display:flex;gap:8px;align-items:center"><button class="sb" data-q="back" aria-label="Back">←</button><b>Wi-Fi</b></span><button class="tgl" role="switch" aria-checked="${!!s.wifi.on}" data-q="wifi" aria-label="Allow internet for apps"></button></div>
+  <div class="rec" style="cursor:default">${wifiIc(online()?3:0,online()?'var(--accent)':'currentColor',26,!online())}<span><b>${esc(netText())}</b><small style="display:block;color:var(--ink2)">${n.on?'Your device is online':'Your device has no internet'}${n.rtt!=null?' · '+n.rtt+' ms':''}</small></span></div>
+  <p style="color:var(--ink2);font-size:12px;margin:8px 2px">Browsers can't list Wi-Fi networks or switch your real Wi-Fi. This shows your device's real connection; the switch blocks internet for apps in this PC.</p><button class="sb" data-q="netset">More network settings</button>`;return}
+ if(qv==='bt'){q.innerHTML=`<div class="row" style="margin-bottom:8px"><span style="display:flex;gap:8px;align-items:center"><button class="sb" data-q="back" aria-label="Back">←</button><b>Bluetooth</b></span><button class="tgl" role="switch" aria-checked="${!!s.bt.on&&!air}" data-q="bt" aria-label="Bluetooth"></button></div>`+
+  (BTD.length?BTD.map(r=>`<button class="rec" data-bt="${esc(r.id)}"><span>${esc(r.name)}<small style="display:block;color:var(--ink2)">${r.on?'Connected'+(r.batt!=null?' · '+r.batt+'%':'')+' (tap to disconnect)':'Tap to connect'}</small></span></button>`).join(''):'<p style="color:var(--ink2);font-size:13px">No devices yet.</p>')+
+  `<div style="margin-top:8px"><button class="sb pri" data-q="btadd">Add device</button> <button class="sb" data-q="btset">More</button></div>${navigator.bluetooth?'':'<p style="color:var(--ink2);font-size:12px">This browser has no Bluetooth support. Use Chrome or Edge.</p>'}`;return}
+ const off=air||!s.wifi.on||!navigator.onLine,bo=!air&&s.bt.on,
+ T=[['wifi','Wi-Fi',netText(),!off,'wifilist'],['bt','Bluetooth',bo?(btCount()?btCount()+' connected':'Not connected'):'Off',bo,'btlist'],['air','Airplane mode',air?'On':'Off',air],['saver','Battery saver',CFG.saver?'On':'Off',CFG.saver],['dark','Dark mode',isDark()?'On':'Off',isDark()],['night','Night light',CFG.night?'On':'Off',CFG.night],['focus','Focus',CFG.focus?'On':'Off',CFG.focus],['sec','Security','Open',0]];
+ q.innerHTML=`<div class="tog">${T.map(t=>`<div style="position:relative"><button data-q="${t[0]}" aria-pressed="${!!t[3]}" style="width:100%">${t[1]}<br><small>${esc(t[2])}</small></button>${t[4]?`<button data-q="${t[4]}" aria-label="${t[1]} details" style="position:absolute;right:6px;top:8px;padding:2px 8px;border-radius:6px;background:none;width:auto">›</button>`:''}</div>`).join('')}</div>
+ <div class="sec" style="margin-top:0">Volume</div><input type="range" data-q="vol" value="${CFG.vol}" aria-label="Volume"><div class="sec">Brightness</div><input type="range" min="30" max="100" data-q="bright" value="${CFG.bright}" aria-label="Brightness">
+ <div class="sec">Notifications</div>${NOTES.length?NOTES.slice(0,3).map(n=>`<div style="padding:4px 2px;font-size:13px"><b>${esc(n.t)}</b><div style="color:var(--ink2)">${esc(n.m||'')}</div></div>`).join('')+'<button class="sb" data-q="clear">Clear all</button>':'<div style="color:var(--ink2);font-size:13px">No new notifications</div>'}
+ <div class="foot"><span>${navigator.getBattery?battIc(BATp)+' '+BATp+'%':''}</span><button data-q="settings">Settings ⚙</button></div>`};
+$('#qs').onclick=e=>{e.stopPropagation();const t=e.target.closest('[data-q],[data-bt]');if(!t)return;
+ if(t.dataset.bt){const r=BTD.find(x=>x.id===t.dataset.bt);if(r){r.on?btDis(r):btConn(r)}tray();qsRender();return}
+ const s=ST.sys,k=t.dataset.q;
+ if(k==='wifi')s.wifi.on=s.wifi.on?0:1;else if(k==='bt'){s.bt.on=s.bt.on?0:1;if(!s.bt.on)BTD.forEach(btDis)}else if(k==='air'){s.air=s.air?0:1;if(s.air)BTD.forEach(btDis)}
+ else if(k==='saver')CFG.saver=CFG.saver?0:1;else if(k==='dark')CFG.theme=isDark()?'light':'dark';else if(k==='night')CFG.night=CFG.night?0:1;else if(k==='focus')CFG.focus=CFG.focus?0:1;
+ else if(k==='wifilist')qv='wifi';else if(k==='btlist')qv='bt';else if(k==='back')qv='main';else if(k==='clear')NOTES.length=0;
+ else if(k==='btadd')return btAdd();else if(k==='netset'){hideMenus();return open('set',{page:'net'})}else if(k==='btset'){hideMenus();return open('set',{page:'bt'})}
+ else if(k==='settings'){hideMenus();return open('set')}else if(k==='sec'){hideMenus();return open('sec')}else return;
+ apply();save();tray();qsRender();settingsRender()};
+/* settings: bluetooth + network pages */
+P.bt=()=>'<h2>Bluetooth & devices</h2>'+srow('Bluetooth','Pairing uses your browser\'s own device chooser',tg('s','bt.on'))+
+ srow('Availability',navigator.bluetooth?(BTAV===false?'No Bluetooth adapter found':'Supported by this browser'):'Not supported in this browser (use Chrome or Edge)',btn('btadd','Add device','pri'))+
+ (BTD.length?BTD.map(r=>srow(esc(r.name),r.on?'Connected'+(r.batt!=null?' · battery '+r.batt+'%':''):'Not connected',btn(r.on?'btdis':'btcon',r.on?'Disconnect':'Connect','',`data-id="${esc(r.id)}"`))).join(''):'<p style="color:var(--ink2)">No devices yet. Press Add device, choose one in the browser window, and it connects for real.</p>')+srow('Camera','Used by Camera and face sign-in',tg('k','cam'));
+P.net=()=>{const n=NI();return'<h2>Network & internet</h2>'+`<div class="srow"><div style="display:flex;gap:12px;align-items:center">${wifiIc(online()?3:0,online()?'var(--accent)':'var(--ink2)',32,!online())}<div><b>${esc(netText())}</b><small>${n.on?'Real status of your device':'Your device is offline'}${n.rtt!=null?' · '+n.rtt+' ms latency':''}</small></div></div></div>`+
+ srow('Internet access for apps','Switch off to block Chrome, Edge, YouTube, downloads and updates in this PC',tg('s','wifi.on'))+srow('Airplane mode','Blocks internet and disconnects Bluetooth devices',tg('s','air'))+
+ srow('Connection type',esc(n.type||'not reported by this browser'),'')+srow('Speed estimate',n.down?n.down+' Mbps':'not reported','')+srow('Effective type',esc(n.eff||'not reported'),'')+
+ '<p style="color:var(--ink2);font-size:13px">Browsers can\'t list nearby Wi-Fi networks, read a network name or switch your real Wi-Fi. Use your device\'s own Wi-Fi settings for that; this page follows the connection automatically.</p>'};
+A.btadd=()=>{btAdd()};A.btdis=d=>{const r=BTD.find(x=>x.id===d.id);r&&btDis(r);tray();qsRender()};A.btcon=d=>{const r=BTD.find(x=>x.id===d.id);r&&btConn(r)};
+/* ---------- face sign-in (local template matching) ---------- */
+const unitv=a=>{let m=0;for(let i=0;i<a.length;i++)m+=a[i];m/=a.length;const z=a.map(x=>x-m);let n=0;for(let i=0;i<z.length;i++)n+=z[i]*z[i];n=Math.sqrt(n)||1;return z.map(x=>x/n)};
+const dot=(a,b)=>{let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s};
+function feat(v){const c=document.createElement('canvas');c.width=c.height=28;const g=c.getContext('2d'),w=v.videoWidth,h=v.videoHeight,m=Math.min(w,h)*.7;g.drawImage(v,(w-m)/2,(h-m)/2-m*.05,m,m,0,0,28,28);
+ const d=g.getImageData(0,0,28,28).data,a=[];for(let i=0;i<784;i++)a.push(.3*d[4*i]+.59*d[4*i+1]+.11*d[4*i+2]);
+ const mu=a.reduce((x,y)=>x+y,0)/784,sd=Math.sqrt(a.reduce((x,y)=>x+(y-mu)*(y-mu),0)/784)||1,n=a.map(x=>(x-mu)/sd),e=[];
+ for(let y=1;y<27;y++)for(let x=1;x<27;x++)e.push(1.5*(n[y*28+x+1]-n[y*28+x-1]),1.5*(n[(y+1)*28+x]-n[(y-1)*28+x]));return unitv(n.concat(e))}
+async function openCam(host){const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}}),v=document.createElement('video');v.srcObject=s;v.muted=true;v.playsInline=true;host&&host.replaceChildren(v);
+ await v.play();await wait(700);return{v,stop:()=>{s.getTracks().forEach(t=>t.stop());host&&host.replaceChildren()}}}
+async function faceEnroll(host,say){const c=await openCam(host);try{const steps=['Look straight at the camera','Turn your head slightly left','Turn your head slightly right','Look straight again'],fr=[];
+ for(const s of steps){say&&say(s);await wait(900);for(let j=0;j<4;j++){fr.push(feat(c.v));await wait(220)}}
+ const mean=fr[0].map((_,i)=>fr.reduce((t,f)=>t+f[i],0)/fr.length),cen=unitv(mean),ss=fr.map(f=>dot(f,cen)),mu=ss.reduce((a,b)=>a+b,0)/ss.length;
+ return{tpl:fr.filter((_,i)=>i%2===0).map(f=>Array.from(f,x=>+x.toFixed(4))),th:Math.min(.85,Math.max(.6,mu-.1))}}finally{c.stop()}}
+async function faceVerify(host,face){const c=await openCam(host);try{const sc=[];for(let i=0;i<6;i++){const f=feat(c.v);sc.push(Math.max(...face.tpl.map(t=>dot(f,t))));await wait(250)}
+ sc.sort((a,b)=>a-b);const score=(sc[2]+sc[3])/2;return{ok:score>=face.th,score}}finally{c.stop()}}
+faceFlow=async function(title){const o=document.createElement('div');o.className='ov';o.style.zIndex=99800;o.innerHTML=`<div class="dlg" style="text-align:center"><b>${esc(title)}</b><div class="fvh" style="height:150px;display:grid;place-items:center">Starting camera…</div><div class="fmsg" style="color:var(--ink2);min-height:20px"></div></div>`;document.body.appendChild(o);
+ try{return await faceEnroll($('.fvh',o),t=>{$('.fmsg',o).textContent=t})}finally{o.remove()}};
+faceLogin=async function(){const m=$('#lmsg'),u=LU;m.textContent='Looking for you…';
+ try{const r=await faceVerify($('#fv'),u.face);if(LU!==u||LM!=='face')return;r.ok?signIn(u):m.textContent='Face not recognised ('+Math.round(r.score*100)+'% match, need '+Math.round(u.face.th*100)+'%). Try again or use your password.'}catch(e){m.textContent='Camera unavailable or blocked. Use your password or PIN.'}};
+/* ---------- updates change the system ---------- */
+const FEAT={1:['Refreshed look','Rounder windows, two new wallpapers (Nebula and Sunrise in Personalisation) and seconds on the taskbar clock.'],2:['Sticky Notes','A new Sticky Notes app is now in Start, plus two new accent colours (Rose and Lime).'],3:['Midnight theme','A new ultra-dark Midnight theme is available in Personalisation.']};
+function whatsNew(b){const f=FEAT[b]||['Security improvements','This update contains security fixes.'];const o=document.createElement('div');o.className='ov';o.style.zIndex=99700;
+ o.innerHTML=`<div class="dlg"><b>Updated to build ${100+b*7}</b><div><b>${f[0]}</b><p style="margin:4px 0;color:var(--ink2)">${f[1]}</p></div><div class="r"><button class="pri">Got it</button></div></div>`;document.body.appendChild(o);$('.pri',o).onclick=()=>o.remove()}
+const _fu=finishUpd;finishUpd=function(){_fu();window._whats=U().build;renderPins();apply()};
+const _si=signIn;signIn=function(u){_si(u);if(window._whats){const b=window._whats;window._whats=0;setTimeout(()=>whatsNew(b),1500)}};
+const HUES=[0,70,160,250,300,30],_ap=apply;
+apply=function(){_ap();root.style.setProperty('--rad',U().build>=1?'18px':'12px');if(!CFG.bg)$('#wall').style.filter='hue-rotate('+(HUES[CFG.wp]||0)+'deg)'};
+tick=function(){const d=new Date(),o=CFG.tz?{timeZone:CFG.tz}:{},sc=U().build>=1?{second:'2-digit'}:{},t=d.toLocaleTimeString([],{...o,...sc,hour:'2-digit',minute:'2-digit',hour12:!CFG.h24}),
+ ds=d.toLocaleDateString([],{...o,day:'numeric',month:'short',year:'numeric'}),wd=d.toLocaleDateString([],{...o,weekday:'long'});
+ $('#ct').textContent=t;$('#wt').textContent=t;$('#lt').textContent=t;$('#cd').textContent=ds;$('#wd').textContent=wd;$('#ld').textContent=wd+', '+d.toLocaleDateString([],{...o,day:'numeric',month:'long'})};
+P.person=()=>{const b=U().build,accs=['#3a6df0','#7c5cf0','#19b5a5','#e5484d','#e08a1e',...(b>=2?['#e0457b','#7cb518']:[])],wps=['Aurora','Lagoon','Meadow','Dusk',...(b>=1?['Nebula','Sunrise']:[])],
+ th=[['system','Use system setting'],['light','Light'],['dark','Dark'],...(b>=3?[['midnight','Midnight']]:[])];
+ return'<h2>Personalisation</h2>'+srow('Theme','',sel('theme',th))+srow('Accent colour','',accs.map(c=>btn('accent','',' ',`data-v="${c}" style="background:${c};width:26px;height:26px;border-radius:50%;padding:0;${c===CFG.acc?'outline:2px solid var(--ink)':''}" aria-label="${c}"`)).join('')+`<input type="color" value="${CFG.acc}" data-k="acc" aria-label="Custom colour">`)+
+ srow('Background',CFG.bg?'Custom picture':'Preset',wps.map((n,i)=>btn('wp',n,!CFG.bg&&CFG.wp===i?'pri':'',`data-v="${i}"`)).join(''))+
+ srow('Choose a picture','Use an image from your computer','<label class="sb pri" style="cursor:pointer">Browse<input type="file" accept="image/*" data-bg hidden></label>'+(CFG.bg?btn('bgclear','Remove'):''))+
+ srow('Taskbar alignment','',sel('align',[['center','Center'],['left','Left']]))+srow('Transparency effects','Glass blur on windows and menus',tg('k','trans'))+(b?srow('Installed update','Build '+(100+b*7),''):'')};
+/* ---------- Sticky Notes (arrives with update 2) ---------- */
+BUILD.sticky=(w,b)=>{USER.sticky=USER.sticky||[];b.innerHTML='<div class="bar"><button class="sb pri" data-c="add">＋ New note</button></div><div class="pad st" style="display:grid;gap:10px;overflow:auto;align-content:start"></div>';
+ const draw=()=>{$('.st',b).innerHTML=USER.sticky.map((n,i)=>`<div style="background:#ffe58a;color:#3b3200;border-radius:10px;padding:8px;position:relative"><textarea data-i="${i}" style="min-height:80px;color:inherit;font:14px/1.4 Segoe UI,sans-serif;padding:4px 18px 4px 4px" aria-label="Note">${esc(n)}</textarea><button data-d="${i}" style="position:absolute;right:6px;top:4px" aria-label="Delete note">✕</button></div>`).join('')||'<p style="color:var(--ink2)">No notes yet.</p>'};
+ b.onclick=e=>{if(e.target.closest('[data-c]')){USER.sticky.unshift('');save();draw()}const d=e.target.closest('[data-d]');if(d){USER.sticky.splice(+d.dataset.d,1);save();draw()}};
+ b.oninput=e=>{if(e.target.dataset.i!=null){USER.sticky[+e.target.dataset.i]=e.target.value;save()}};draw()};
+/* ---------- websites open inside windows ---------- */
+const WCOL=['#3a6df0','#7c5cf0','#19b5a5','#e5484d','#e08a1e','#2e8b57'];
+const FRAME='allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-modals" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff"';
+const offPage=()=>`<div class="bw"><h2>No internet</h2><p style="color:var(--ink2)">${esc(netText())}. Turn on internet access or connect your device to Wi-Fi.</p><button class="sb pri" data-c="wifi">Open network settings</button></div>`;
+const chip=u=>`<div style="position:absolute;bottom:8px;right:8px;background:var(--gs);border:1px solid var(--line);padding:5px 10px;border-radius:10px;font-size:12px;z-index:2">Blank? Some sites refuse to be embedded. <a href="${esc(u)}" target="_blank" rel="noopener" style="color:var(--accent)">Open in new tab</a></div>`;
+function regWeb(){Object.keys(APPS).filter(k=>APPS[k].web).forEach(k=>{delete APPS[k];delete BUILD[k];delete I[k]});
+ ST.sys.web.forEach(x=>{const k='web_'+x.id;I[k]=`<rect x="3" y="3" width="26" height="26" rx="7" fill="${x.c}"/><text x="16" y="22.5" text-anchor="middle" font-size="16" font-weight="700" fill="#fff" font-family="Segoe UI,sans-serif">${esc(x.n.slice(0,1).toUpperCase())}</text>`;
+  APPS[k]={n:x.n,i:k,w:900,h:540,web:x.u};BUILD[k]=(w,b)=>webapp(w,b,x.u)})}
+function webapp(w,b,url){b.innerHTML=`<div class="bar"><button data-c="re" aria-label="Reload">⟳</button><input class="search" style="flex:1;min-width:140px" aria-label="Address" value="${esc(url)}"><button class="sb" data-c="tab">Open in new tab</button></div><div class="pgc" style="position:relative;flex:1"></div>`;
+ let cur=url;const pg=$('.pgc',b),load=()=>{pg.innerHTML=online()?`<iframe src="${esc(toEmbed(cur))}" title="Web app" ${FRAME}></iframe>${chip(cur)}`:offPage()};
+ b.onclick=e=>{const c=e.target.closest('[data-c]');if(!c)return;const a=c.dataset.c;if(a==='re')load();else if(a==='tab')link(cur);else if(a==='wifi')open('set',{page:'net'})};
+ b.onkeydown=e=>{if(e.key==='Enter'&&e.target.matches('.search')){let v=e.target.value.trim();if(!/^https?:\/\//i.test(v))v='https://'+v;cur=v;load()}};w.api.render=load;load()}
+BUILD.youtube=(w,b)=>{const vids=[['Big Buck Bunny','YE7VzlLtp-4'],['Sintel','eRsGyueVLvQ'],['Tears of Steel','R6MlUcmOul8']];
+ b.innerHTML=`<div class="bar"><input class="search" style="flex:1;min-width:150px" placeholder="Paste a YouTube link, video ID or playlist" aria-label="YouTube link"><button class="sb pri" data-c="play">Play</button><button class="sb" data-c="tab">Open YouTube</button></div><div class="split"><div class="pgc" style="flex:1;background:#000;position:relative;min-width:0"></div><nav class="side" style="width:170px;border-left:1px solid var(--line);border-right:0"><div class="sec" style="margin-top:0">Try these</div>${vids.map(v=>`<button data-v="${v[1]}">${esc(v[0])}</button>`).join('')}</nav></div><div class="status">Plays YouTube videos inside this window. Search needs the real site, so plain words open YouTube in a new tab.</div>`;
+ const pg=$('.pgc',b),inp=$('.search',b),play=u=>{if(!online()){pg.innerHTML='<div style="color:#fff;padding:20px">'+esc(netText())+'. Turn on internet access to play videos.</div>';return}pg.innerHTML=`<iframe src="${esc(u)}" title="YouTube player" ${FRAME}></iframe>`},
+ emb=s=>{s=s.trim();const l=s.match(/[?&]list=([\w-]+)/),v=s.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/)||(/^[\w-]{11}$/.test(s)?[0,s]:null);if(v)return'https://www.youtube-nocookie.com/embed/'+v[1]+'?autoplay=1&rel=0'+(l?'&list='+l[1]:'');if(l)return'https://www.youtube-nocookie.com/embed/videoseries?list='+l[1];return null};
+ const go=()=>{const s=inp.value.trim();if(!s)return;const u=emb(s);u?play(u):link('https://www.youtube.com/results?search_query='+encodeURIComponent(s))};
+ b.onclick=e=>{const c=e.target.closest('[data-c]'),v=e.target.closest('[data-v]');if(v)return play('https://www.youtube-nocookie.com/embed/'+v.dataset.v+'?autoplay=1&rel=0');if(c)c.dataset.c==='play'?go():link('https://www.youtube.com')};
+ inp.onkeydown=e=>{if(e.key==='Enter')go()};pg.innerHTML='<div style="color:#fff;padding:20px">Paste a link above or pick a video on the right.</div>'};
+A.webadd=()=>dlg('Website address','https://',u=>{u=u.trim();if(!/^https?:\/\//i.test(u))u='https://'+u;let h;try{h=new URL(u).hostname.replace(/^www\./,'')}catch(e){return notify('Invalid address','Enter a full web address.')}
+ dlg('App name',h,n=>{n=(n.trim()||h).slice(0,20);ST.sys.web.push({id:Date.now().toString(36),n,u,c:WCOL[ST.sys.web.length%6]});regWeb();renderPins();tasks();save();settingsRender();notify(n,'Added to Start')})});
+A.webrm=d=>{const i=ST.sys.web.findIndex(x=>x.id===d.id);if(i<0)return;Object.values(W).filter(x=>x.k==='web_'+d.id).forEach(x=>close(x.id));ST.sys.web.splice(i,1);regWeb();renderPins();tasks()};
+const _pa=P.apps;P.apps=()=>_pa()+'<h3>Websites as apps</h3>'+ST.sys.web.map(x=>srow(`<span style="display:flex;gap:10px;align-items:center">${ic('web_'+x.id,26)}${esc(x.n)}</span>`,esc(x.u),btn('openapp','Open','','data-k="web_'+x.id+'"')+btn('webrm','Remove','',`data-id="${x.id}"`))).join('')+srow('Add a website as an app','Any site opens in its own window',btn('webadd','Add','pri'));
+/* ---------- Edge / Chrome with in-window pages ---------- */
+const BMK2=[['Gmail','https://mail.google.com'],['YouTube','https://www.youtube.com'],['Maps','https://www.openstreetmap.org/export/embed.html?bbox=68%2C6%2C98%2C36&layer=mapnik'],['GitHub','https://github.com'],['Wikipedia','https://en.wikipedia.org'],['News','https://www.bbc.com/news']];
+function toEmbed(u){const m=u.match(/(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);return m?'https://www.youtube-nocookie.com/embed/'+m[1]+'?autoplay=1&rel=0':u}
+function mkBrowser(kind){return(w,b)=>{let tabs=[{u:'ntp'}],cur=0,shelf=[];const eng=kind==='chrome'?'https://www.google.com/search?q=':'https://www.bing.com/search?q=';
+ b.innerHTML=`<div class="tabs"></div><div class="bar"><button data-c="back" aria-label="Back">←</button><button data-c="reload" aria-label="Reload">⟳</button><input class="search omni" style="flex:1;min-width:140px" placeholder="Search or type a URL" aria-label="Address"><button data-c="go" class="pri">Go</button><button data-c="prof" aria-label="Profile">${USER?av(USER,22):''}</button></div><div class="bk">${BMK2.map(([n,u])=>`<a href="#" data-go="${esc(u)}">${n}</a>`).join('')}</div><div class="pgc"></div><div class="shelf"></div>`;
+ const ttl=t=>t.u==='ntp'?'New tab':t.u==='down'?'Downloads':t.u==='samples'?'Sample files':(()=>{try{return new URL(t.orig||t.url).hostname}catch(e){return t.url}})(),k2=(n,v)=>v.t==='d'?'folder':v.t==='i'?'photo':'note';
+ function render(){const t=tabs[cur],pg=$('.pgc',b);$('.tabs',b).innerHTML=tabs.map((x,i)=>`<div class="tab ${i===cur?'on':''}" data-t="${i}"><span>${esc(ttl(x))}</span><button data-x="${i}" aria-label="Close tab">✕</button></div>`).join('')+'<button class="tab" data-c="nt" aria-label="New tab">＋</button>';$('.omni',b).value=t.u==='web'?(t.orig||t.url):'';
+  if(t.u==='ntp')pg.innerHTML=`<div class="bw"><h1 style="font-weight:300;margin:10px 0 18px">${kind==='chrome'?'Chrome':'Edge'} · New tab</h1><input class="search" id="ntq" style="max-width:480px" placeholder="Search the web or type a URL" aria-label="Search"><div class="tiles">${BMK2.map(([n,u])=>`<a href="#" data-go="${esc(u)}">${n}</a>`).join('')}<a href="#" data-go="chrome://downloads">Downloads</a><a href="#" data-go="chrome://samples">Sample files</a></div></div>`;
+  else if(t.u==='down'){const e=Object.entries(node(['Downloads']).c);pg.innerHTML=`<div class="pad"><h2 style="margin:0 0 10px">Downloads</h2><div style="display:flex;gap:8px;margin-bottom:10px"><label class="sb pri" style="cursor:pointer">Import files from this computer<input type="file" multiple hidden></label><button class="sb" data-c="folder">Open folder</button></div>`+(e.length?e.map(([n,v])=>srow(`<span style="display:flex;gap:10px;align-items:center">${ic(k2(n,v),24)}${esc(n)}</span>`,fmt(sizeOf(v)),'')).join(''):'<p style="color:var(--ink2)">No downloads yet.</p>')+'</div>'}
+  else if(t.u==='samples')pg.innerHTML=`<div class="pad"><h2 style="margin:0 0 6px">Sample files</h2><p style="color:var(--ink2)">Built-in files that show how downloads work. They save to your Downloads folder.</p>`+SAMPLES.map(n=>srow(esc(n),'',`<button class="sb pri" data-dl="${n}">Download</button>`)).join('')+'</div>';
+  else pg.innerHTML=online()?`<iframe src="${esc(t.url)}" title="Web page" ${FRAME}></iframe>${chip(t.orig||t.url)}`:offPage()}
+ function drawShelf(){$('.shelf',b).innerHTML=shelf.slice(-4).map(i=>`<div class="dli"><b>${esc(i.n)}</b><div style="color:var(--ink2)">${i.p>=100?'Done':Math.floor(i.p)+'%'}</div><div class="pbar"><i style="width:${i.p}%"></i></div></div>`).join('')}
+ function dl(n){if(!online())return notify('Download failed','No internet connection.');const it={n,p:0};shelf.push(it);const iv=setInterval(()=>{it.p+=12+Math.random()*18;if(it.p>=100){it.p=100;clearInterval(iv);put(['Downloads'],n,mkSample(n));notify('Download complete',n+' saved to Downloads')}drawShelf()},250);drawShelf()}
+ function go(v){v=v.trim();if(!v)return;if(/^(chrome|edge|about):\/\/downloads/i.test(v))tabs[cur]={u:'down'};else if(/^(chrome|edge|about):\/\/samples/i.test(v))tabs[cur]={u:'samples'};
+  else{const u=/^https?:\/\//i.test(v)?v:/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(v)?'https://'+v:eng+encodeURIComponent(v);if(/^https?:\/\/(www\.|m\.)?youtube\.com\/?(\?.*)?$/i.test(u)){open('youtube');return}tabs[cur]={u:'web',url:toEmbed(u),orig:u}}render()}
+ b.onclick=e=>{const x=e.target.closest('[data-x]');if(x){tabs.splice(+x.dataset.x,1);if(!tabs.length)tabs=[{u:'ntp'}];cur=Math.min(cur,tabs.length-1);render();return}
+  const t=e.target.closest('[data-t]');if(t){cur=+t.dataset.t;render();return}const g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.dataset.go);return}
+  const d=e.target.closest('[data-dl]');if(d)return dl(d.dataset.dl);const c=e.target.closest('[data-c]');if(!c)return;const a=c.dataset.c;
+  if(a==='go')go($('.omni',b).value);else if(a==='nt'){tabs.push({u:'ntp'});cur=tabs.length-1;render()}else if(a==='reload')render();else if(a==='back'){tabs[cur]={u:'ntp'};render()}
+  else if(a==='folder')open('explorer',{path:['Downloads']});else if(a==='wifi')open('set',{page:'net'});
+  else if(a==='prof')notify('Profile: '+(USER?USER.name:''),'Google sign-in must be done on the real site. Gmail may refuse to load in a window; use Open in new tab.')};
+ b.onkeydown=e=>{if(e.key==='Enter'&&e.target.matches('.omni,#ntq'))go(e.target.value)};b.onchange=e=>{if(e.target.type==='file')importFiles(e.target.files)};
+ w.api.render=()=>{if(tabs[cur].u==='down')render()};render()}}
+BUILD.browser=mkBrowser('edge');BUILD.chrome=mkBrowser('chrome');
+/* ---------- boot (v4) ---------- */
+async function boot(){await DB.open();const s=await DB.get('state'),d=defSys();
+ if(s&&s.users){ST=s;ST.users.forEach(u=>{if(Array.isArray(u.face))u.face=null});const old=s.sys||{};ST.sys=Object.assign(d,old);for(const k of['upd','sec','wifi','bt'])ST.sys[k]=Object.assign(defSys()[k],old[k]);if(!Array.isArray(ST.sys.web))ST.sys.web=defSys().web;ST.sys.wifi.on=ST.sys.wifi.on?1:0}
+ else ST={users:[],sys:d};
+ const u=ST.sys.upd;if(u.state==='installing')u.state='available';if(u.state==='checking')u.state='idle';
+ regWeb();PIN.splice(0,PIN.length,'explorer','browser','youtube','notepad','calc','paint','term','set',...['chrome','code'].filter(k=>ST.sys.inst.includes(k)));
+ renderPins();tasks();apply();tray();qsRender();tick();setInterval(tick,1000);setInterval(syncBt,1500);batInit();
+ ST.users.length?lock():oobe()}
+boot();
+</script>
+</body>
+</html>
